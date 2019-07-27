@@ -3,14 +3,29 @@ import codecs
 import json
 
 
+#https://stackoverflow.com/questions/27984064/scrapy-scraping-a-list-of-links
+#https://stackoverflow.com/questions/33747174/how-to-specify-parameters-on-a-request-using-scrapy
+
+
 class OtodomListSpider(scrapy.Spider):
+    """
+     :param max_pages: set max number of pages to crawl
+     :param pageCounter: technical field to count how many (next) pages hac been already crawled
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.max_pages = 1
+        self.pageCounter = 0
+
+
     name = "otodom"
     start_urls = [
         'https://www.otodom.pl/sprzedaz/mieszkanie/warszawa',
     ]
 
     start_xpath = "//div[@class='col-md-content section-listing__row-content']//article[starts-with(@class,'offer-item ad')]"
-    iter_xpaths = {
+    iter_xpaths_list = {
         "flat_size":"div[@class='offer-item-details']/ul[starts-with(@class,'params')]/li[@class='hidden-xs offer-item-area']/text()",
         "gallery":"figure/@data-quick-gallery",
         "img_cover_title":"figure/a/span[@class='img-cover lazy']/@title",
@@ -26,18 +41,63 @@ class OtodomListSpider(scrapy.Spider):
         "url":"@data-url"
     }
 
+    iter_xpaths_one_article = {
+        'offer_type': '//div[contains(@class,"MobileLabel-className")]/text()',
+        'name': '//h1[contains(@class,"AdHeader-className")]/text()',
+        'location': '//a[contains(@class,"AdPage-contentStyle")]/text()',
+        'price': '//div[@class="css-1hbj9if-AdHeader"]//text()[position()=1]',
+        'price_m2': '//div[@class="css-cu1lls-AdHeader"]//text()',
+        'flat_size': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Powierzchnia')]//strong//text()",
+        'rooms': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Liczba pokoi')]//strong//text()",
+        'market': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Rynek')]//strong//text()",
+        'building_type': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Rodzaj zabudowy')]//strong//text()",
+        'floor': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Piętro')]//strong//text()",
+        'number_of_floors': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Liczba pięter')]//strong//text()",
+        'building_material': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Materiał budynku')]//strong//text()",
+        'widows_type': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Okna')]//strong//text()",
+        'heating_type': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Ogrzewanie')]//strong//text()",
+        'year_of_building': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Rok budowy')]//strong//text()",
+        'finishing_stage': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Stan wykończenia')]//strong//text()",
+        'rent_price': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Czynsz')]//strong//text()",
+        'property_form': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Forma własności')]//strong//text()",
+        'available_from': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Dostępne od')]//strong//text()",
+        'description': '//*[section]//div[contains(@class, "AdDescription-className")]//text()',
+        'additional_info': "//div[contains(@class, 'AdFeatures-className')]//text()",
+        'tracking_id': 'substring-after(//div[@class="css-97h3nz-AdSignature-className"]/div[position()=1]//text()[following-sibling::br],":")',
+        'agency_tracking_id': 'substring-after(//div[@class="css-97h3nz-AdSignature-className"]/div[position()=1]//text()[preceding-sibling::br],":")',
+        'add_rel_date': 'substring-after(//div[@class="css-97h3nz-AdSignature-className"]/div[position()=2]//text()[following-sibling::br],":")',
+        'update_rel_date': 'substring-after(//div[@class="css-97h3nz-AdSignature-className"]/div[position()=2]//text()[preceding-sibling::br],":")',
+    }
+
     def parse(self, response):
+        """
+
+        :param response:
+        :return:
+        """
+        self.pageCounter += 1
         for quote in response.xpath(self.start_xpath):
             tmp = {}
 
-            for key in self.iter_xpaths:
-                tmp[key] = quote.xpath(self.iter_xpaths[key]).get()
+            for key in self.iter_xpaths_list:
+                tmp[key] = quote.xpath(self.iter_xpaths_list[key]).get()
 
-            yield tmp
+            request = scrapy.Request(tmp['url'], callback=self.parse_one_article)
+            request.meta['data'] = tmp
+            yield request
 
-        #next_page = response.css('li.pager-next a::attr(href)').get()
-        next_page = response.xpath("//li[@class='pager-next'][re:test(a/@href, '.+[1|2|3|4|5]')][1]/a/@href").get()
+        next_page = response.css('li.pager-next a::attr(href)').get()
+        #next_page = response.xpath("//li[@class='pager-next'][re:test(a/@href, '.+[1|2|3|4|5]')][1]/a/@href").get()
 
-        if next_page is not None:
+        if next_page is not None and self.pageCounter <= self.max_pages:
             yield response.follow(next_page, callback=self.parse)
+
+    def parse_one_article(self, response):
+
+        tmp = response.meta['data']
+
+        for key in self.iter_xpaths_one_article:
+            tmp[key] = response.xpath(self.iter_xpaths_one_article[key]).get()
+
+        yield tmp
 

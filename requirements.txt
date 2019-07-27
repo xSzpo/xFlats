@@ -1,0 +1,11 @@
+requests
+lxml
+requests
+boto3
+pymongo
+Pillow
+pandas
+botocore
+numpy==1.15.4
+xmltodict
+scrapy
