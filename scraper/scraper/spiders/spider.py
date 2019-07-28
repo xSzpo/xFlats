@@ -7,6 +7,14 @@ import json
 #https://stackoverflow.com/questions/33747174/how-to-specify-parameters-on-a-request-using-scrapy
 
 
+class MySpider(scrapy.Spider):
+
+    name = 'test'
+    start_urls = ['http://example.com']
+
+    def parse(self, response):
+        print("Existing settings: %s" % self.settings['MAX_PAGES'])
+
 class OtodomListSpider(scrapy.Spider):
     """
      :param max_pages: set max number of pages to crawl
@@ -15,7 +23,6 @@ class OtodomListSpider(scrapy.Spider):
 
     def __init__(self):
         super().__init__()
-        self.max_pages = 1
         self.pageCounter = 0
 
 
@@ -76,20 +83,22 @@ class OtodomListSpider(scrapy.Spider):
         :return:
         """
         self.pageCounter += 1
-        for quote in response.xpath(self.start_xpath):
+
+        # do something for every offer found in offers list
+        for offer in response.xpath(self.start_xpath):
             tmp = {}
 
             for key in self.iter_xpaths_list:
-                tmp[key] = quote.xpath(self.iter_xpaths_list[key]).get()
+                tmp[key] = offer.xpath(self.iter_xpaths_list[key]).get()
 
             request = scrapy.Request(tmp['url'], callback=self.parse_one_article)
             request.meta['data'] = tmp
             yield request
 
+        # after you crawl each offer in current page go to the next page
         next_page = response.css('li.pager-next a::attr(href)').get()
-        #next_page = response.xpath("//li[@class='pager-next'][re:test(a/@href, '.+[1|2|3|4|5]')][1]/a/@href").get()
 
-        if next_page is not None and self.pageCounter <= self.max_pages:
+        if next_page is not None and self.pageCounter < self.settings['MAX_PAGES']:
             yield response.follow(next_page, callback=self.parse)
 
     def parse_one_article(self, response):
