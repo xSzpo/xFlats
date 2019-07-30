@@ -144,6 +144,7 @@ wheels/
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
+*.log
 
 # Unit test / coverage reports
 htmlcov/
@@ -242,3 +243,10 @@ $RECYCLE.BIN/
 */build/*
 
 # End of https://www.gitignore.io/api/osx,linux,python,windows,pycharm,visualstudiocode
+
+# Data
+*.jl
+*.jsonl
+*.jsonline
+*.json
+*.jsonlines
