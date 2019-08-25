@@ -1,8 +1,25 @@
 import scrapy
 import helpers
+import re
 import logging
+import datetime
+import json
+import bson
+from bson.json_util import dumps, loads
+import bz2
 
 logger = logging.getLogger(__name__)
+
+
+def timeit(method):
+    def timed(*args, **kw):
+        start_time = datetime.datetime.now()
+        result = method(*args, **kw)
+        time_elapsed = datetime.datetime.now() - start_time
+        logger.info('Function "{}" - time elapsed (hh:mm:ss.ms) {}'.format(
+            method.__name__, time_elapsed))
+        return result
+    return timed
 
 
 class MySpider(scrapy.Spider):
@@ -86,6 +103,10 @@ class OtodomListSpider(scrapy.Spider):
         """
         self.pageCounter += 1
 
+        file_list_aws_bucket = helpers.scraper.list_bucket(self.settings['BUCKET_NAME'],
+                                                self.settings['BUCKET_PREFIX_BSON'])
+        logger.info(file_list_aws_bucket[:2])
+
         # do something for every offer found in offers list
         for offer in response.xpath(self.start_xpath):
             tmp = {}
@@ -98,7 +119,17 @@ class OtodomListSpider(scrapy.Spider):
 
             request = scrapy.Request(tmp['url'], callback=self.parse_one_article)
             request.meta['data'] = tmp
-            yield request
+
+            price_str = ''.join([i for i in re.sub("[ ]","",tmp["price"]) if i.isdigit()])
+            file_name = tmp["tracking_id"]+"_"+price_str+".bson"
+
+            if file_name not in file_list_aws_bucket:
+                logger.info("File {} has NOT been in bucket -> download".format(file_name))
+                request.meta['file_name'] = file_name
+                yield request
+            else:
+                logger.info('File {} HAS been in bucket -> NO NOT download'.format(file_name))
+
 
         # after you crawl each offer in current page go to the next page
         next_page = response.css('li.pager-next a::attr(href)').get()
@@ -117,5 +148,12 @@ class OtodomListSpider(scrapy.Spider):
         tmp['geo_coordinates'], tmp['geo_address_text'], tmp['geo_address_coordin'] = helpers.scraper.get_geodata(
             response.body)
 
-        yield tmp
+        tmp['img_gallery_strimg'] = [helpers.scraper.imgurl2str(i['photo']) for i in json.loads(tmp['gallery'])[:1]]
+
+        data_b_ = dumps(bson.BSON.encode(tmp))
+
+        helpers.scraper.write_S3_bucket(data_b_, response.meta['file_name'],
+                                              self.settings['BUCKET_NAME'], prefix=self.settings['BUCKET_PREFIX_BSON'])
+        yield {"file_name": response.meta['file_name'], "statusCode": 200}
+
 

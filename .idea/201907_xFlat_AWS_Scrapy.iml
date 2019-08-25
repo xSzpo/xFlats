@@ -7,12 +7,27 @@
       <excludeFolder url="file://$MODULE_DIR$/.aws-sam" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Python 3.6 (201907_xFlat_AWS_Scrapy)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="R Skeletons" level="application" />
     <orderEntry type="library" name="R User Library" level="project" />
   </component>
   <component name="TestRunnerService">
     <option name="PROJECT_TEST_RUNNER" value="Unittests" />
+  </component>
+  <component name="deploySettings">
+    <option name="samConfigs">
+      <map>
+        <entry key="template.yaml">
+          <value>
+            <DeploySamConfig>
+              <option name="autoExecute" value="true" />
+              <option name="bucketName" value="31b179a9-539e-4d1d-9686-3136fe76b662" />
+              <option name="stackName" value="scrapy" />
+            </DeploySamConfig>
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </module>

@@ -9,11 +9,11 @@
 #     https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'scraper'
+BOT_NAME = 'daniel'
 
-FEED_URI = 'wynik.jsonl'
-FEED_FORMAT = 'jsonlines'
-FEED_EXPORT_ENCODING = 'utf-8'
+#FEED_URI = 'wynik.jsonl'
+#FEED_FORMAT = 'jsonlines'
+#FEED_EXPORT_ENCODING = 'utf-8'
 
 SPIDER_MODULES = ['scraper.spiders']
 NEWSPIDER_MODULE = 'scraper.spiders'
@@ -29,32 +29,7 @@ MAX_PAGES = 1
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'scraper (+http://www.yourdomain.com)'
-
-USER_AGENTS = [
-    ('Mozilla/5.0 (X11; Linux x86_64) '
-     'AppleWebKit/537.36 (KHTML, like Gecko) '
-     'Chrome/57.0.2987.110 '
-     'Safari/537.36'),  # chrome
-    ('Mozilla/5.0 (X11; Linux x86_64) '
-     'AppleWebKit/537.36 (KHTML, like Gecko) '
-     'Chrome/61.0.3163.79 '
-     'Safari/537.36'),  # chrome
-    ('Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:55.0) '
-     'Gecko/20100101 '
-     'Firefox/55.0'),  # firefox
-    ('Mozilla/5.0 (X11; Linux x86_64) '
-     'AppleWebKit/537.36 (KHTML, like Gecko) '
-     'Chrome/61.0.3163.91 '
-     'Safari/537.36'),  # chrome
-    ('Mozilla/5.0 (X11; Linux x86_64) '
-     'AppleWebKit/537.36 (KHTML, like Gecko) '
-     'Chrome/62.0.3202.89 '
-     'Safari/537.36'),  # chrome
-    ('Mozilla/5.0 (X11; Linux x86_64) '
-     'AppleWebKit/537.36 (KHTML, like Gecko) '
-     'Chrome/63.0.3239.108 '
-     'Safari/537.36'),  # chrome
-]
+USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
@@ -68,13 +43,15 @@ ROBOTSTXT_OBEY = True
 DOWNLOAD_DELAY = 0.5    # 250 ms of delay
 RANDOMIZE_DOWNLOAD_DELAY = True
 
+#CONCURRENT_REQUESTS = 1
+
 
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
 #CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-COOKIES_ENABLED = False
+COOKIES_ENABLED = True
 
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
@@ -94,10 +71,9 @@ COOKIES_ENABLED = False
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 
-DOWNLOADER_MIDDLEWARES = {
-    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
-    'scrapy_useragents.downloadermiddlewares.useragents.UserAgentsMiddleware': 500,
-}
+#DOWNLOADER_MIDDLEWARES_BASE = {
+#    'scrapy.spidermiddlewares.httperror.HttpErrorMiddleware': True
+#}
 
 # Enable or disable extensions
 # See https://doc.scrapy.org/en/latest/topics/extensions.html
@@ -135,6 +111,6 @@ DOWNLOADER_MIDDLEWARES = {
 # S3
 
 BUCKET_NAME = '31b179a9-539e-4d1d-9686-3136fe76b662'
-BUCKET_PREFIX_BSON = 'offers_bson/'
+BUCKET_PREFIX_BSON = 'offers_bson_new/'
 #FEED_URI = 's3://31b179a9-539e-4d1d-9686-3136fe76b662/%(name)s/%(time)s.jsonlines'
 FEED_FORMAT = 'jsonlines'

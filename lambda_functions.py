@@ -3,26 +3,31 @@ import time
 import helpers
 from scrapy.utils.log import configure_logging
 
-from scrapy.crawler import CrawlerProcess
+from scrapy.crawler import CrawlerProcess, CrawlerRunner
 from scrapy.utils.project import get_project_settings
+from twisted.internet import reactor
 
 
-configure_logging(install_root_handler=False)
-logging.basicConfig(
-    filename='scraper.log',
-    filemode='w',
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.ERROR
-)
+#configure_logging(install_root_handler=False)
+#logging.basicConfig(
+#    filename='scraper.log',
+#    filemode='w',
+#    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+#    level=logging.ERROR
+#)
 
 logger = logging.getLogger(__name__)
 
 
-def scraper_otodom():
+def scraper_otodom(event = {'test':1}, context= {'test':1}):
 
+    _, _ = event, context
+
+    # https://github.com/scrapy/scrapy/issues/3606
     process = CrawlerProcess(get_project_settings())
-    process.crawl('otodom')
-    process.start()
+    d = process.crawl('otodom')
+    d.addBoth(lambda _: reactor.stop())
+    reactor.run()
 
 
 if __name__ == "__main__":
