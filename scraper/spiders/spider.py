@@ -23,15 +23,14 @@ def timeit(method):
 
 
 class MySpider(scrapy.Spider):
-
+    #https://github.com/aivarsk/scrapy-proxies
     name = 'test'
-    start_urls = ['http://example.com']
+
+    start_urls = ['https://www.otodom.pl/']
 
     def parse(self, response):
-        print("Existing settings: %s" % self.settings['MAX_PAGES'])
-        file_list = helpers.scraper.list_bucket(self.settings['BUCKET_NAME'],
-                                        self.settings['BUCKET_PREFIX_BSON'])
-        print(file_list[:2])
+        print(response.body[:1000])
+        pass
 
 
 class OtodomListSpider(scrapy.Spider):
@@ -45,6 +44,22 @@ class OtodomListSpider(scrapy.Spider):
         self.pageCounter = 0
 
     name = "otodom"
+
+    custom_settings = {
+        'ROBOTSTXT_OBEY': 'False',
+        'RETRY_TIMES': 10,
+        'PROXY_LIST': ['67.227.6.146:21258:danielszpo:t5zb2yokg6'],
+
+        'PROXY_MODE'        : 0,
+        'DOWNLOADER_MIDDLEWARES' : {
+            'scrapy.downloadermiddlewares.retry.RetryMiddleware': 90,
+            'scrapy_proxies.RandomProxy': 1,
+            'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 110,
+            #'scrapy_crawlera.CrawleraMiddleware': 600,
+            #'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware': None,
+            #'random_useragent.RandomUserAgentMiddleware': 400
+        },
+    }
 
     start_urls = [
         'https://www.otodom.pl/sprzedaz/mieszkanie/warszawa',

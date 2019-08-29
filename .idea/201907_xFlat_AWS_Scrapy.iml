@@ -23,7 +23,7 @@
             <DeploySamConfig>
               <option name="autoExecute" value="true" />
               <option name="bucketName" value="31b179a9-539e-4d1d-9686-3136fe76b662" />
-              <option name="stackName" value="scrapy" />
+              <option name="stackName" value="x" />
             </DeploySamConfig>
           </value>
         </entry>

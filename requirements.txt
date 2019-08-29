@@ -8,4 +8,7 @@ botocore
 numpy==1.15.4
 xmltodict
 Scrapy
-Scrapy-UserAgents
+scrapy_proxies
+scrapy-useragents
+selenium
+scrapy-selenium
