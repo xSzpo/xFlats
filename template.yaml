@@ -5,7 +5,7 @@ Resources:
   producerOtodomList:
     Type: 'AWS::Serverless::Function'
     Properties:
-      Handler: lambda_functions.test
+      Handler: lambda_functions.scraper_otodom
       Runtime: python3.7
       CodeUri: .
       Description: ''
