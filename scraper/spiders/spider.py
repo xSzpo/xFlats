@@ -5,9 +5,7 @@ import logging
 import datetime
 import json
 import bson
-from bson.json_util import dumps, loads
-import bz2
-
+from bson.json_util import dumps
 logger = logging.getLogger(__name__)
 
 
@@ -118,7 +116,6 @@ class OtodomListSpider(scrapy.Spider):
             else:
                 logger.info('File {} HAS been in bucket -> NO NOT download'.format(file_name))
 
-
         # after you crawl each offer in current page go to the next page
         next_page = response.css('li.pager-next a::attr(href)').get()
 
@@ -143,5 +140,3 @@ class OtodomListSpider(scrapy.Spider):
         helpers.scraper.write_S3_bucket(data_b_, response.meta['file_name'],
                                               self.settings['BUCKET_NAME'], prefix=self.settings['BUCKET_PREFIX_BSON'])
         yield {"file_name": response.meta['file_name'], "statusCode": 200}
-
-
