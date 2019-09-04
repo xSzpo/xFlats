@@ -11,9 +11,18 @@ logger.setLevel(logging.INFO)
 def scraper_otodom(event, context):
 
     _, _ = event, context
-    process = CrawlerProcess(get_project_settings())
+    # overwrite to save results in S3
+    settings = get_project_settings()
+    settings['SAVE_RESULTS'] = 'S3'
+
+    # run crawler
+    process = CrawlerProcess(settings)
     d = process.crawl('otodom')
+
+    # avoid error  ReactorNotRestartable
+    # https://doc.scrapy.org/en/latest/topics/practices.html#run-scrapy-from-a-script
     d.addBoth(lambda _: reactor.stop())
+
     reactor.run()
     return {
         'statusCode': 200,

@@ -1,4 +1,5 @@
 import scrapy
+from scrapy.exceptions import CloseSpider
 import helpers
 import re
 import logging
@@ -7,6 +8,7 @@ import json
 import bson
 from bson.json_util import dumps
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def timeit(method):
@@ -54,44 +56,51 @@ class OtodomListSpider(scrapy.Spider):
     }
 
     iter_xpaths_one_article = {
-        'offer_type': '//div[contains(@class,"MobileLabel-className")]/text()',
-        'name': '//h1[contains(@class,"AdHeader-className")]/text()',
-        'location': '//a[contains(@class,"AdPage-contentStyle")]/text()',
-        'price': '//div[@class="css-1hbj9if-AdHeader"]//text()[position()=1]',
-        'price_m2': '//div[@class="css-cu1lls-AdHeader"]//text()',
-        'flat_size': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Powierzchnia')]//strong//text()",
-        'rooms': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Liczba pokoi')]//strong//text()",
-        'market': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Rynek')]//strong//text()",
-        'building_type': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Rodzaj zabudowy')]//strong//text()",
-        'floor': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Piętro')]//strong//text()",
-        'number_of_floors': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Liczba pięter')]//strong//text()",
-        'building_material': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Materiał budynku')]//strong//text()",
-        'widows_type': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Okna')]//strong//text()",
-        'heating_type': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Ogrzewanie')]//strong//text()",
-        'year_of_building': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Rok budowy')]//strong//text()",
-        'finishing_stage': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Stan wykończenia')]//strong//text()",
-        'rent_price': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Czynsz')]//strong//text()",
-        'property_form': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Forma własności')]//strong//text()",
-        'available_from': "//div[contains(@class,'AdOverview-className')]//li[contains(text(),'Dostępne od')]//strong//text()",
-        'description': '//*[section]//div[contains(@class, "AdDescription-className")]//text()',
-        'additional_info': "//div[contains(@class, 'AdFeatures-className')]//text()",
-        'tracking_id': 'substring-after(//div[@class="css-97h3nz-AdSignature-className"]/div[position()=1]//text()[following-sibling::br],":")',
-        'agency_tracking_id': 'substring-after(//div[@class="css-97h3nz-AdSignature-className"]/div[position()=1]//text()[preceding-sibling::br],":")',
-        'add_rel_date': 'substring-after(//div[@class="css-97h3nz-AdSignature-className"]/div[position()=2]//text()[following-sibling::br],":")',
-        'update_rel_date': 'substring-after(//div[@class="css-97h3nz-AdSignature-className"]/div[position()=2]//text()[preceding-sibling::br],":")',
+        'offer_type': '//div[contains(@class,"css-7hnk9y")]/text()',
+        'name': '//h1[contains(@class,"css-18igut2")]/text()',
+        'location': '//a[contains(@class,"css-1npvo8i-Cn")]/text()',
+        'price': '//div[contains(@class,"css-1vr19r7")]/text()',
+        'price_m2': '//div[contains(@class,"css-18q4l99")]/text()',
+        'flat_size': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Powierzchnia')]//strong//text()",
+        'rooms': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Liczba pokoi')]//strong//text()",
+        'market': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Rynek')]//strong//text()",
+        'building_type': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Rodzaj zabudowy')]//strong//text()",
+        'floor': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Piętro')]//strong//text()",
+        'number_of_floors': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Liczba pięter')]//strong//text()",
+        'building_material': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Materiał budynku')]//strong//text()",
+        'widows_type': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Okna')]//strong//text()",
+        'heating_type': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Ogrzewanie')]//strong//text()",
+        'year_of_building': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Rok budowy')]//strong//text()",
+        'finishing_stage': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Stan wykończenia')]//strong//text()",
+        'rent_price': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Czynsz')]//strong//text()",
+        'property_form': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Forma własności')]//strong//text()",
+        'available_from': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Dostępne od')]//strong//text()",
+        'description': '//section[@class="section-description"]//div//text()',
+        'additional_info': "//div[contains(@class,'css-1bpegon')]//text()",
+        'tracking_id': "substring-after(//div[contains(@class,'css-kos6vh')]//text()[position()=1][following-sibling::br],':')",
+        'agency_tracking_id': 'substring-after(//div[@class="css-kos6vh"]/div[position()=2]//text()[preceding-sibling::br],":")',
+        'add_rel_date': "substring-after(//div[contains(@class,'css-lh1bxu')]//text()[position()=1][following-sibling::br],':')",
+        'update_rel_date': 'substring-after(//div[@class="css-lh1bxu"][position()=1]//text()[preceding-sibling::br],":")'
     }
 
     def parse(self, response):
         """
 
         :param response:
+        :param response:
         :return:
         """
         self.pageCounter += 1
 
-        file_list_aws_bucket = helpers.scraper.list_bucket(self.settings['BUCKET_NAME'],
-                                                self.settings['BUCKET_PREFIX_BSON'])
-        logger.info(file_list_aws_bucket[:2])
+        if self.settings['SAVE_RESULTS'] == 'LOCAL':
+            file_list = helpers.scraper.list_local(self.settings['LOCAL_DATA_PATH'])
+        elif self.settings['SAVE_RESULTS'] == 'S3':
+            file_list = helpers.scraper.list_bucket(self.settings['BUCKET_NAME'],
+                                                    self.settings['BUCKET_PREFIX_BSON'])
+        else:
+            raise Exception("please specify where to save results")
+
+        logger.info(file_list[:2])
 
         # do something for every offer found in offers list
         for offer in response.xpath(self.start_xpath):
@@ -109,7 +118,7 @@ class OtodomListSpider(scrapy.Spider):
             price_str = ''.join([i for i in re.sub("[ ]","",tmp["price"]) if i.isdigit()])
             file_name = tmp["tracking_id"]+"_"+price_str+".bson"
 
-            if file_name not in file_list_aws_bucket:
+            if file_name not in file_list:
                 logger.info("File {} has NOT been in bucket -> download".format(file_name))
                 request.meta['file_name'] = file_name
                 yield request
@@ -128,15 +137,37 @@ class OtodomListSpider(scrapy.Spider):
 
         for key in self.iter_xpaths_one_article:
             tmp[key] = response.xpath(self.iter_xpaths_one_article[key]).get()
+
+        tmp['additional_info'] = "|".join(response.xpath(self.iter_xpaths_one_article['additional_info']).getall())
+        tmp['description'] = "\n".join(response.xpath(self.iter_xpaths_one_article['description']).getall())
         tmp['download_date'] = helpers.scraper.current_timestamp()
 
         tmp['geo_coordinates'], tmp['geo_address_text'], tmp['geo_address_coordin'] = helpers.scraper.get_geodata(
             response.body)
 
-        tmp['img_gallery_strimg'] = [helpers.scraper.imgurl2str(i['photo']) for i in json.loads(tmp['gallery'])[:1]]
+        tmp['img_gallery_strimg'] = [helpers.scraper.imgurl2str(i['photo']) for i in json.loads(
+                                                                    tmp['gallery'])[:self.settings['DOWNLOAD_IMAGES']]]
+
+        check_list = ['flat_size', 'location', 'offer_title', 'url', 'name', 'description']
+        for key in check_list:
+            if tmp[key] is None:
+                dict_temp = helpers.scraper.add_dict([self.iter_xpaths_list, self.iter_xpaths_one_article])
+                text = 'xPaths doesnt work: \n'
+                for key2 in check_list:
+                    if tmp[key2] is None:
+                        text += "{}: {} \n".format(key, dict_temp[key])
+                raise Exception(text)
+                raise CloseSpider(text)
 
         data_b_ = dumps(bson.BSON.encode(tmp))
 
-        helpers.scraper.write_S3_bucket(data_b_, response.meta['file_name'],
-                                              self.settings['BUCKET_NAME'], prefix=self.settings['BUCKET_PREFIX_BSON'])
+        if self.settings['SAVE_RESULTS'] == 'LOCAL':
+            helpers.scraper.write_local(data_b_, self.settings['LOCAL_DATA_PATH'], response.meta['file_name'])
+        elif self.settings['SAVE_RESULTS'] == 'S3':
+            helpers.scraper.write_s3_bucket(data_b_, response.meta['file_name'],
+                                            self.settings['BUCKET_NAME'], prefix=self.settings['BUCKET_PREFIX_BSON'])
+        else:
+            raise Exception("please specify where to save results")
+
+
         yield {"file_name": response.meta['file_name'], "statusCode": 200}

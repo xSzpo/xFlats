@@ -1,5 +1,5 @@
 import logging
-
+import os
 import boto3
 import datetime
 import bz2
@@ -12,6 +12,7 @@ import PIL
 from io import BytesIO
 import bson
 from bson.json_util import dumps, loads
+from functools import reduce
 
 
 logger = logging.getLogger(__name__)
@@ -24,10 +25,31 @@ def list_bucket(bucket_name, prefix='offers_bson/'):
     return list_files_in_offers_list
 
 
-def write_S3_bucket(object, file_name, bucket_name, prefix='offers_bson/'):
+def list_local(path):
+    return os.listdir(path)
+
+
+def write_s3_bucket(object_file, file_name, bucket_name, prefix='offers_bson/'):
     s3 = boto3.resource('s3')
     bucket = s3.Bucket(bucket_name)
-    return bucket.put_object(Key=prefix+file_name, Body=object)
+    return bucket.put_object(Key=prefix+file_name, Body=object_file)
+
+
+def write_local(object_file, path, file_name):
+    with open(os.path.join(path, file_name), 'w') as f:
+        f.write(object_file)
+
+
+def read_bson_local(path, file_name):
+    with open(os.path.join(path, file_name), 'rb') as f:
+        x = bson.BSON.decode(loads(f.read()))
+    return x
+
+
+def load_bson_s3(file_name, bucket_name, prefix='offers_bson/'):
+    client = boto3.client('s3')
+    file = client.get_object(Bucket=bucket_name, Key = prefix+file_name)['Body'].read()
+    return bson.BSON.decode(loads(file))
 
 
 def current_timestamp():
@@ -108,13 +130,29 @@ def open_img_from_str(str_img):
         return None
 
 
-def write_bson(file_path_, data_):
-    data_b_ = bson.BSON.encode(data_)
-    with open(file_path_,'w') as f:
-        f.write(dumps(data_b_))
+#def write_bson(file_path_, data_):
+#    data_b_ = bson.BSON.encode(data_)
+#    with open(file_path_,'w') as f:
+#        f.write(dumps(data_b_))
 
 
-def read_bson(file_path_):
-    with open(file_path_,'r') as f:
-        d=bson.BSON.decode(loads(f.read()))
-    return d
+#def read_bson(file_path_):
+#    with open(file_path_,'r') as f:
+#        d=bson.BSON.decode(loads(f.read()))
+#    return d
+
+
+def dict_except(dictionary, except_keys=[], include_keys=None):
+    temp = {}
+    for key in dictionary:
+        if key not in except_keys:
+            if include_keys is None:
+                temp[key] = dictionary[key]
+            else:
+                if key in include_keys:
+                    temp[key] = dictionary[key]
+    return temp
+
+
+def add_dict(dict_list):
+    return reduce(lambda x, y: dict(x, **y), dict_list)
