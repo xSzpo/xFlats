@@ -58,7 +58,7 @@ class OtodomListSpider(scrapy.Spider):
     iter_xpaths_one_article = {
         'offer_type': '//div[contains(@class,"css-7hnk9y")]/text()',
         'name': '//h1[contains(@class,"css-18igut2")]/text()',
-        'location': '//a[contains(@class,"css-1npvo8i-Cn")]/text()',
+        'location': '//a[contains(@class,"css-1way1d2-En")]/text()',
         'price': '//div[contains(@class,"css-1vr19r7")]/text()',
         'price_m2': '//div[contains(@class,"css-18q4l99")]/text()',
         'flat_size': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Powierzchnia')]//strong//text()",
@@ -100,7 +100,8 @@ class OtodomListSpider(scrapy.Spider):
         else:
             raise Exception("please specify where to save results")
 
-        logger.info(file_list[:2])
+        logger.info("Prepare list of downloaded files")
+        logger.debug(file_list[-2:])
 
         # do something for every offer found in offers list
         for offer in response.xpath(self.start_xpath):
@@ -119,11 +120,11 @@ class OtodomListSpider(scrapy.Spider):
             file_name = tmp["tracking_id"]+"_"+price_str+".bson"
 
             if file_name not in file_list:
-                logger.info("File {} has NOT been in bucket -> download".format(file_name))
+                logger.info("File {} is NOT in bucket -> download".format(file_name))
                 request.meta['file_name'] = file_name
                 yield request
             else:
-                logger.info('File {} HAS been in bucket -> NO NOT download'.format(file_name))
+                logger.info('File {} is in bucket -> DO NOT download'.format(file_name))
 
         # after you crawl each offer in current page go to the next page
         next_page = response.css('li.pager-next a::attr(href)').get()
@@ -151,7 +152,7 @@ class OtodomListSpider(scrapy.Spider):
         check_list = ['flat_size', 'location', 'offer_title', 'url', 'name', 'description']
         for key in check_list:
             if tmp[key] is None:
-                dict_temp = helpers.scraper.add_dict([self.iter_xpaths_list, self.iter_xpaths_one_article])
+                dict_temp = helpers.scraper.concat_dict([self.iter_xpaths_list, self.iter_xpaths_one_article])
                 text = 'xPaths doesnt work: \n'
                 for key2 in check_list:
                     if tmp[key2] is None:
@@ -168,6 +169,5 @@ class OtodomListSpider(scrapy.Spider):
                                             self.settings['BUCKET_NAME'], prefix=self.settings['BUCKET_PREFIX_BSON'])
         else:
             raise Exception("please specify where to save results")
-
 
         yield {"file_name": response.meta['file_name'], "statusCode": 200}

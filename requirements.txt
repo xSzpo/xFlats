@@ -1,3 +1,4 @@
+pip
 lxml
 boto3
 requests
@@ -9,3 +10,14 @@ numpy==1.15.4
 xmltodict
 Scrapy
 twisted
+geopandas
+matplotlib
+keras
+tensorflow
+feather-format
+h5py
+scikit-learn
+unidecode
+descartes
+rtree
+##brew install spatialindex

@@ -9,13 +9,15 @@
 BOT_NAME = 'daniel'
 
 # max following pages
-MAX_PAGES = 300
+MAX_PAGES = 99999
 
 # save results to S3 or local
 SAVE_RESULTS = 'LOCAL' #['LOCAL','S3']
 
 # SAVE_RESULTS: local
-LOCAL_DATA_PATH = '/Users/xszpo/Google Drive/DataScience/DATA/01_otodo_scrapy'
+LOCAL_DATA_PATH = '/Users/xszpo/Google Drive/DataScience/DATA/01_otodom_scrapy'
+LOCAL_DATA_PATH_PREP = '/Users/xszpo/Google Drive/DataScience/DATA/01_otodom_scrapy_prepred'
+LOCAL_DATA_PATH_DICT = '/Users/xszpo/Google Drive/DataScience/DATA/DICT'
 
 # SAVE_RESULTS: S3
 BUCKET_NAME = '31b179a9-539e-4d1d-9686-3136fe76b662'

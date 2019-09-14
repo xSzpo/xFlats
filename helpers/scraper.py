@@ -13,7 +13,10 @@ from io import BytesIO
 import bson
 from bson.json_util import dumps, loads
 from functools import reduce
-
+import codecs
+import pandas as pd
+import geopandas
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -130,18 +133,6 @@ def open_img_from_str(str_img):
         return None
 
 
-#def write_bson(file_path_, data_):
-#    data_b_ = bson.BSON.encode(data_)
-#    with open(file_path_,'w') as f:
-#        f.write(dumps(data_b_))
-
-
-#def read_bson(file_path_):
-#    with open(file_path_,'r') as f:
-#        d=bson.BSON.decode(loads(f.read()))
-#    return d
-
-
 def dict_except(dictionary, except_keys=[], include_keys=None):
     temp = {}
     for key in dictionary:
@@ -154,5 +145,43 @@ def dict_except(dictionary, except_keys=[], include_keys=None):
     return temp
 
 
-def add_dict(dict_list):
+def concat_dict(dict_list):
     return reduce(lambda x, y: dict(x, **y), dict_list)
+
+
+def digits_from_str(txt):
+    """return numbers from string
+    return numbers from string ex. '523 000 zł' -> 523000,
+
+    :param:
+    txt - text that contains number
+    :return:
+    int
+    """
+    result = "".join([i for i in txt if ((i.isdigit() and i != '²') or (i in (',', '.')))]).replace(",", ".")
+    return float(result) if len(result) > 0 else None
+
+
+def read_bus_gpd(path, file, X = "X", Y="Y"):
+    with codecs.open(os.path.join(path,file), "r", "utf-8") as file:
+        bus_stops_json = json.loads(file.read())
+    bus_stops_df = pd.DataFrame(bus_stops_json)
+    bus_stops_gdf = geopandas.GeoDataFrame(
+        bus_stops_df, geometry=geopandas.points_from_xy(bus_stops_df[X], bus_stops_df[Y]))
+    return bus_stops_gdf
+
+
+def convert_floor(x):
+    if x.isdigit():
+        return int(x)
+    elif x == 'parter':
+        return 0
+    elif x == 'suterena':
+        return np.NaN
+    elif x == '> 10':
+        return 11
+    elif x == 'poddasze':
+        return np.NaN
+    else:
+        return np.NaN
+
