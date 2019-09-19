@@ -12,7 +12,7 @@ def scraper_otodom(event, context):
     _, _ = event, context
     # overwrite to save results in S3
     settings = get_project_settings()
-    settings['SAVE_RESULTS'] = 'S3'
+    settings['SAVE_RESULTS'] = ['S3']
 
     # run crawler
     process = CrawlerProcess(settings)
