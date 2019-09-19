@@ -5,10 +5,26 @@ Resources:
   producerOtodomList:
     Type: 'AWS::Serverless::Function'
     Properties:
-      Handler: lambda_functions.scraper_otodom
+      Handler: app_aws_lambda.scraper_otodom
       Runtime: python3.7
-      CodeUri: .
+      CodeUri: app_webscr_otodom/
       Description: ''
       MemorySize: 512
       Timeout: 300
       Role: 'arn:aws:iam::464312940617:role/lambda-s3-role'
+      #Events:
+      #  HelloWorld:
+      #    Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+      #    Properties:
+      #      Path: /getnewoffers
+      #      Method: get
+      #  Every5minutes:
+      #    Type: Schedule
+      #    Properties:
+      #      Schedule: rate(5 minutes)
+      #      Name: my-schedule
+      #      Description: Example schedule
+      #      Enabled: True
+      #Policies:
+      #  - S3FullAccessPolicy:
+      #      BucketName: '31b179a9-539e-4d1d-9686-3136fe76b662'
