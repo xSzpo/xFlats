@@ -4,9 +4,9 @@ boto3
 requests
 pymongo
 Pillow
-pandas
-botocore
 numpy==1.15.4
+pandas==0.25.0
+botocore
 xmltodict
 Scrapy
 twisted

@@ -5,7 +5,7 @@ Resources:
   producerOtodomList:
     Type: 'AWS::Serverless::Function'
     Properties:
-      Handler: app_aws_lambda.scraper_otodom
+      Handler: aws_app.scraper_otodom
       Runtime: python3.7
       CodeUri: app_webscr_otodom/
       Description: ''
