@@ -12,7 +12,7 @@ BOT_NAME = 'daniel'
 MAX_PAGES = 1
 
 # save results to S3 or local
-SAVE_RESULTS = ['MONGODB','LOCAL','S3'] #['LOCAL','S3','MONGODB']
+SAVE_RESULTS = ['MONGODB', 'LOCAL', 'S3'] #['LOCAL','S3','MONGODB']
 
 # SAVE_RESULTS: local
 LOCAL_DATA_PATH = '/Users/xszpo/Google Drive/DataScience/DATA/01_otodom_scrapy'
@@ -25,7 +25,8 @@ BUCKET_PREFIX_BSON = 'offers_bson_new/'
 #FEED_FORMAT = 'jsonlines'
 
 # SAVE_RESULTS: MONGO
-MONGO_ADDRESS = 'localhost'
+#MONGO_ADDRESS = 'localhost'
+MONGO_ADDRESS = 'mongo'
 MONGO_PORT = 27017
 MONGO_DBNAME = 'OFFERS'
 MONGO_COLL_OTODOM = 'Otodom'
@@ -52,7 +53,6 @@ CONCURRENT_REQUESTS = 2
 
 # https://developers.whatismybrowser.com
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36 OPR/63.0.3368.75"
-# otodom doesnt accept fake USER-AGENT, better set nothing
 
 # Disable cookies (enabled by default)
 COOKIES_ENABLED = False

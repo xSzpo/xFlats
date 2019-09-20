@@ -14,10 +14,6 @@ import bson
 from bson.json_util import dumps, loads
 from functools import reduce
 import codecs
-import pandas as pd
-import geopandas
-import json
-import codecs
 import pymongo
 from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError, WriteError, WriteConcernError, WTimeoutError
 import gc
@@ -66,7 +62,7 @@ class FilesMongo:
     def write_file(object_file, db, id_field='_id'):
         try:
             w = db.update_one({id_field: object_file[id_field]}, {"$set": object_file}, upsert=True)
-            logger.info("MongoDB: offer {} is saved, {}".format(object_file[id_field],w))
+            logger.info("MongoDB: save offer {} to mongodb, {}".format(object_file[id_field],w))
             pass
 
         except (ConnectionFailure, ServerSelectionTimeoutError) as e:
@@ -101,7 +97,7 @@ class FilesS3:
         s3 = boto3.resource('s3')
         bucket = s3.Bucket(bucket_name)
         w = bucket.put_object(Key=prefix+file_name+".bson", Body=data_b_)
-        logger.info("S3: offer {} is saved, {}".format(file_name, w))
+        logger.info("S3: save offer {} to S3, {}".format(file_name, w))
         pass
 
     @staticmethod
@@ -124,7 +120,7 @@ class FilesLocal:
         data_b_ = dumps(bson.BSON.encode(object_file))
         with codecs.open(os.path.join(path, file_name+".bson"), 'w', encoding='utf-8') as f:
             f.write(data_b_)
-        logger.info("Local: offer {} is saved".format(file_name))
+        logger.info("Local: save offer {} to local disk".format(file_name))
         pass
 
     @staticmethod
@@ -248,15 +244,6 @@ class Scraper:
 
 
 class Geodata:
-
-    @staticmethod
-    def read_bus_gpd(path, file, X = "X", Y="Y"):
-        with codecs.open(os.path.join(path,file), "r", "utf-8") as file:
-            bus_stops_json = json.loads(file.read())
-        bus_stops_df = pd.DataFrame(bus_stops_json)
-        bus_stops_gdf = geopandas.GeoDataFrame(
-            bus_stops_df, geometry=geopandas.points_from_xy(bus_stops_df[X], bus_stops_df[Y]))
-        return bus_stops_gdf
 
     @staticmethod
     def get_geodata(content, compressed=False):
