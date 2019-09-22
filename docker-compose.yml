@@ -6,17 +6,19 @@ services:
   scraperotodom:
     build: ./app_webscr_otodom
     image: scraperotodom:1
-    restart: on-failure
+    restart: always
     environment:
       SCRAPER_START_DELAY_SEC: 30
       SCRAPER_DELAY_AFTER_EACH_RUN_SEC: 180
     depends_on:
       - mongo
+      - zookeeper
+      - kafka
     networks:
       - webnet
 
   mongo:
-    image: mongo:latest
+    image: mongo:4.2.0-bionic
     restart: always
     environment:
       MONGO_INITDB_DATABASE: Otodom
@@ -30,9 +32,26 @@ services:
     networks:
       - webnet
 
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+      - webnet
+
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: localhost 
+      KAFKA_CREATE_TOPICS: "xflats:1:1"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - webnet
+
 networks: 
   webnet:
 
-#docker-compose build
-#docker-compose up
-#docker system prune

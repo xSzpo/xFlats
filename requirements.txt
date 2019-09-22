@@ -12,3 +12,4 @@ Scrapy
 twisted
 geopandas
 pymongo
+kafka-python
