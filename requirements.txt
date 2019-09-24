@@ -2,13 +2,13 @@ pip
 lxml
 boto3
 requests
-pymongo
+pymongo==3.9.0
 Pillow
-pandas
+pandas==0.25.1
 botocore
 numpy==1.15.4
 xmltodict
-Scrapy
+Scrapy==1.7.3
 twisted
 geopandas
 pymongo
