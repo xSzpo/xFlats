@@ -10,9 +10,9 @@ BOT_NAME = 'daniel'
 
 # max following pages
 MAX_PAGES = 1
-
+XPATH_JSON_DIR = './scraper/spiders/xhpats.json'
 # save results to S3 or local
-SAVE_RESULTS = ['MONGODB', 'LOCAL', 'S3'] #['LOCAL','S3','MONGODB']
+SAVE_RESULTS = ['MONGODB'] #['LOCAL','S3','MONGODB']
 
 # SAVE_RESULTS: local
 LOCAL_DATA_PATH = '/Users/xszpo/Google Drive/DataScience/DATA/01_otodom_scrapy'
@@ -25,8 +25,8 @@ BUCKET_PREFIX_BSON = 'offers_bson_new/'
 #FEED_FORMAT = 'jsonlines'
 
 # SAVE_RESULTS: MONGO
-#MONGO_ADDRESS = 'localhost'
-MONGO_ADDRESS = 'mongo'
+MONGO_ADDRESS = 'localhost'
+#MONGO_ADDRESS = 'mongo'
 MONGO_PORT = 27017
 MONGO_DBNAME = 'OFFERS'
 MONGO_COLL_OTODOM = 'Otodom'

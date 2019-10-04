@@ -17,6 +17,7 @@ import codecs
 import pymongo
 from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError, WriteError, WriteConcernError, WTimeoutError
 import gc
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -265,3 +266,29 @@ class Geodata:
         address_coordin = xmltodict.parse(address.content)['reversegeocode']['result']
 
         return geocoordinates, address_text, address_coordin
+
+
+class Test:
+
+    @staticmethod
+    def check_list(nbr, response_):
+        with codecs.open("./scraper/spiders/xhpats.json", "r") as file:
+            xpathjson = json.load(file)
+
+        lista = response_.xpath(xpathjson['list_page_start_xpath'])
+        xpathjson=xpathjson['list_page_iter_xpaths']
+        name = list(xpathjson.keys())[nbr]
+        text = ""
+        for i in lista:
+            value = response_.xpath(xpathjson[name]).getall()
+            text += "number: {}, name: {}, value: {} \n".format(nbr, name, value)
+        return text
+
+    @staticmethod
+    def check_offer(nbr, response_):
+        with codecs.open("./scraper/spiders/xhpats.json", "r") as file:
+            xpathjson = json.load(file)
+        xpathjson=xpathjson['article_page_iter_xpaths']
+        name = list(xpathjson.keys())[nbr]
+        value = response_.xpath(xpathjson[name]).getall()
+        return value, "number: {}, name: {}, value: {}".format(nbr, name, value)
