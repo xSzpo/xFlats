@@ -22,6 +22,7 @@ def scraper_otodom(event={}, context={}):
     # overwrite to save results in S3
     settings = get_project_settings()
     settings['SAVE_RESULTS'] = 'MONGODB'
+    settings['MONGO_ADDRESS'] = 'mongo'
 
     # wait until mongodb is ready
     if 'SCRAPER_START_DELAY_SEC' in os.environ.keys():
