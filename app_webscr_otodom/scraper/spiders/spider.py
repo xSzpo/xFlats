@@ -4,8 +4,7 @@ import helpers
 import re
 import datetime
 import json
-import bson
-from bson.json_util import dumps
+import codecs
 import numpy as np
 
 import logging
@@ -33,57 +32,17 @@ class OtodomListSpider(scrapy.Spider):
         # super().__init__()
         self.pageCounter = 0
         self.mongo_connection = None
+        self.write = True
 
     name = "otodom"
 
-    start_urls = [
-        'https://www.otodom.pl/sprzedaz/mieszkanie/warszawa',
-    ]
+    with codecs.open("./scraper/spiders/xhpats.json", "r") as file:
+        xpath_json = json.load(file)
 
-    start_xpath = "//div[@class='col-md-content section-listing__row-content']//article[starts-with(@class,'offer-item ad')]"
-    iter_xpaths_list = {
-        "flat_size":"div[@class='offer-item-details']/ul[starts-with(@class,'params')]/li[@class='hidden-xs offer-item-area']/text()",
-        "gallery":"figure/@data-quick-gallery",
-        "img_cover_title":"figure/a/span[@class='img-cover lazy']/@title",
-        "issued_by":"div[@class='offer-item-details-bottom']/ul[@class='params-small clearfix hidden-xs']/li[starts-with(@class, 'pull')]/text()",
-        "location": "div[@class='offer-item-details']/header/p[@class='text-nowrap']/text()",
-        "offer_id": "@data-item-id",
-        "offer_title": "div[@class='offer-item-details']/header/h3/a//span[@class='offer-item-title']/text()",
-        "price": "div[@class='offer-item-details']/ul[starts-with(@class,'params')]/li[@class='offer-item-price']/text()",
-        "price_per_square": "div[@class='offer-item-details']/ul[starts-with(@class,'params')]/li[@class='hidden-xs offer-item-price-per-m']/text()",
-        "rooms": "div[@class='offer-item-details']/ul[starts-with(@class,'params')]/li[@class='offer-item-rooms hidden-xs']/text()",
-        "tracking_id": "@data-tracking-id",
-        "type": "@data-featured-name",
-        "url":"@data-url"
-    }
-
-    iter_xpaths_one_article = {
-        'offer_type': '//div[contains(@class,"css-7hnk9y")]/text()',
-        'name': '//h1[contains(@class,"css-18igut2")]/text()',
-        'location': '//a[contains(@class,"css-1way1d2-En")]/text()',
-        'price': '//div[contains(@class,"css-1vr19r7")]/text()',
-        'price_m2': '//div[contains(@class,"css-18q4l99")]/text()',
-        'flat_size': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Powierzchnia')]//strong//text()",
-        'rooms': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Liczba pokoi')]//strong//text()",
-        'market': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Rynek')]//strong//text()",
-        'building_type': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Rodzaj zabudowy')]//strong//text()",
-        'floor': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Piętro')]//strong//text()",
-        'number_of_floors': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Liczba pięter')]//strong//text()",
-        'building_material': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Materiał budynku')]//strong//text()",
-        'widows_type': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Okna')]//strong//text()",
-        'heating_type': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Ogrzewanie')]//strong//text()",
-        'year_of_building': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Rok budowy')]//strong//text()",
-        'finishing_stage': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Stan wykończenia')]//strong//text()",
-        'rent_price': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Czynsz')]//strong//text()",
-        'property_form': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Forma własności')]//strong//text()",
-        'available_from': "//div[contains(@class,'css-1ci0qpi')]//li[contains(text(),'Dostępne od')]//strong//text()",
-        'description': '//section[@class="section-description"]//div//text()',
-        'additional_info': "//div[contains(@class,'css-1bpegon')]//text()",
-        'tracking_id': "substring-after(//div[contains(@class,'css-kos6vh')]//text()[position()=1][following-sibling::br],':')",
-        'agency_tracking_id': 'substring-after(//div[@class="css-kos6vh"]/div[position()=2]//text()[preceding-sibling::br],":")',
-        'add_rel_date': "substring-after(//div[contains(@class,'css-lh1bxu')]//text()[position()=1][following-sibling::br],':')",
-        'update_rel_date': 'substring-after(//div[@class="css-lh1bxu"][position()=1]//text()[preceding-sibling::br],":")'
-    }
+    start_urls = xpath_json['start_urls']
+    list_page_start_xpath = xpath_json['list_page_start_xpath']
+    list_page_iter_xpaths = xpath_json['list_page_iter_xpaths']
+    article_page_iter_xpaths = xpath_json['article_page_iter_xpaths']
 
     def parse(self, response):
         """
@@ -116,15 +75,20 @@ class OtodomListSpider(scrapy.Spider):
         logger.info("Get data:")
 
         # do something for every offer found in offers list
-        for offer in response.xpath(self.start_xpath):
+        for offer in response.xpath(self.list_page_start_xpath):
             tmp = {}
 
-            for key in self.iter_xpaths_list:
-                tmp[key] = offer.xpath(self.iter_xpaths_list[key]).get()
+            for key in self.list_page_iter_xpaths:
+                tmp[key] = offer.xpath(self.list_page_iter_xpaths[key]).get()
+                if tmp[key] is None:
+                    text = 'LIST - xPaths doesnt work: \n'
+                    text += "{}: {} , value:{}\n".format(key, self.list_page_iter_xpaths[key], tmp[key])
+                    raise CloseSpider(text)
             tmp['url_offer_list'] = response.url
             tmp['producer_name'] = self.name
             tmp["main_url"] = "otodom.pl"
-
+            #logger.info("JESTEM TUTAJ")
+            #raise CloseSpider(text)
             request = scrapy.Request(tmp['url'], callback=self.parse_one_article)
             request.meta['data'] = tmp
 
@@ -148,11 +112,11 @@ class OtodomListSpider(scrapy.Spider):
 
         tmp = response.meta['data']
 
-        for key in self.iter_xpaths_one_article:
-            tmp[key] = response.xpath(self.iter_xpaths_one_article[key]).get()
+        for key in self.article_page_iter_xpaths:
+            tmp[key] = response.xpath(self.article_page_iter_xpaths[key]).get()
 
-        tmp['additional_info'] = "|".join(response.xpath(self.iter_xpaths_one_article['additional_info']).getall())
-        tmp['description'] = "\n".join(response.xpath(self.iter_xpaths_one_article['description']).getall())
+        tmp['additional_info'] = "|".join(response.xpath(self.article_page_iter_xpaths['additional_info']).getall())
+        tmp['description'] = "\n".join(response.xpath(self.article_page_iter_xpaths['description']).getall())
         tmp['download_date'] = helpers.Scraper.current_timestamp()
 
         tmp['geo_coordinates'], tmp['geo_address_text'], tmp['geo_address_coordin'] = helpers.Geodata.get_geodata(
@@ -164,8 +128,8 @@ class OtodomListSpider(scrapy.Spider):
         check_list = ['flat_size', 'location', 'offer_title', 'url', 'name', 'description']
         for key in check_list:
             if tmp[key] is None:
-                dict_temp = helpers.Scraper.concat_dict([self.iter_xpaths_list, self.iter_xpaths_one_article])
-                text = 'xPaths doesnt work: \n'
+                dict_temp = helpers.Scraper.concat_dict([self.list_page_iter_xpaths, self.article_page_iter_xpaths])
+                text = 'OFFER - xPaths doesnt work: \n'
                 for key2 in check_list:
                     if tmp[key2] is None:
                         text += "{}: {} \n".format(key, dict_temp[key])
@@ -173,14 +137,14 @@ class OtodomListSpider(scrapy.Spider):
 
         tmp = self.transform_data(tmp, response.meta['file_name'])
 
-        if 'LOCAL' in self.settings['SAVE_RESULTS']:
+        if 'LOCAL' in self.settings['SAVE_RESULTS'] and self.write:
             helpers.FilesLocal.write_file(tmp, self.settings['LOCAL_DATA_PATH'], response.meta['file_name'])
 
-        if 'S3' in self.settings['SAVE_RESULTS']:
+        if 'S3' in self.settings['SAVE_RESULTS'] and self.write:
             helpers.FilesS3.write_file(tmp, response.meta['file_name'], self.settings['BUCKET_NAME'],
                                        prefix=self.settings['BUCKET_PREFIX_BSON'])
 
-        if 'MONGODB' in self.settings['SAVE_RESULTS']:
+        if 'MONGODB' in self.settings['SAVE_RESULTS'] and self.write:
             helpers.FilesMongo.write_file(tmp, self.mongo_connection)
 
         if len([i for i in ['LOCAL', 'S3', 'MONGODB'] if i in self.settings['SAVE_RESULTS']]) == 0:
@@ -223,7 +187,6 @@ class OtodomListSpider(scrapy.Spider):
         _tmp['additional_info'] = _tmp['additional_info'].split("|")
         _ = _tmp.pop('geo_coordinates')
         _ = _tmp.pop('geo_address_coordin')
-        _ = _tmp.pop('price_per_square')
 
         # MODIFY DATA
         _tmp['flat_size'] = float(np.float32(helpers.Scraper.digits_from_str(_tmp['flat_size']))) if \

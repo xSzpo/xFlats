@@ -7,6 +7,9 @@ services:
     build: ./app_webscr_otodom
     image: scraperotodom:1
     restart: always
+    volumes:
+      - ./app_webscr_otodom/scraper/settings.py:/app/scraper/settings.py
+      - ./app_webscr_otodom/scraper/spiders/xhpats.json:/app/scraper/spiders/xhpats.json
     environment:
       SCRAPER_START_DELAY_SEC: 30
       SCRAPER_DELAY_AFTER_EACH_RUN_SEC: 180

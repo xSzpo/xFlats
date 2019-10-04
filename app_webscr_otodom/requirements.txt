@@ -10,5 +10,4 @@ botocore
 xmltodict
 Scrapy
 twisted
-pymongo
 kafka-python
