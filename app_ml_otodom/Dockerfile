@@ -1,6 +1,7 @@
 # Use an official Python runtime as a parent image
 # docker run -it python:3.7-alpine /bin/ash
 # docker run -it python:3.7.2-slim bash
+# docker exec -it <container-name/ID> bash
 #FROM python:3.6-slim
 
 FROM python:3.7-slim

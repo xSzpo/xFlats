@@ -1,5 +1,7 @@
 import scrapy
 from scrapy.exceptions import CloseSpider
+import sys
+sys.path.append("..")
 import helpers
 import re
 import datetime

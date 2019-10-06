@@ -5,7 +5,7 @@ services:
 
   scraperotodom:
     build: ./app_webscr_otodom
-    image: scraperotodom:1
+    image: scraperotodom:latest
     restart: always
     volumes:
       - ./app_webscr_otodom/scraper/settings.py:/app/scraper/settings.py
@@ -36,18 +36,18 @@ services:
       - webnet
 
   zookeeper:
-    image: wurstmeister/zookeeper
+    image: wurstmeister/zookeeper:latest
     ports:
       - "2181:2181"
     networks:
       - webnet
 
   kafka:
-    image: wurstmeister/kafka
+    image: wurstmeister/kafka:latest
     ports:
       - "9092:9092"
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: localhost 
+      KAFKA_ADVERTISED_HOST_NAME: kafka
       KAFKA_CREATE_TOPICS: "xflats:1:1"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     volumes:
@@ -55,6 +55,5 @@ services:
     networks:
       - webnet
 
-networks: 
+networks:
   webnet:
-
