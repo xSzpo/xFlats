@@ -12,4 +12,7 @@ Scrapy==1.7.3
 twisted
 geopandas
 pymongo
-kafka-python
+pykafka
+scikit-learn==0.20.0
+unidecode
+flask==1.1.1
