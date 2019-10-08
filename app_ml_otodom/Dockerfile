@@ -13,6 +13,8 @@ WORKDIR /app
 COPY . /app
 
 # Install any needed packages specified in requirements.txt
+RUN apt-get update \
+    && apt-get install libgomp1
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
 EXPOSE 8080
