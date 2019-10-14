@@ -14,6 +14,9 @@ COPY . /app
 # Install any needed packages specified in requirements.txt
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
+# set scraper start delay
+ENV SCRAPER_START_DELAY_SEC 60
+
 # run
 CMD ["python", "-u","/app/docker_app.py"]
 

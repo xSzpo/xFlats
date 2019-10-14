@@ -7,6 +7,10 @@ db.Otodom.find({ "prediction_time" : { "$exists" : true } }).count()
 
 db.Otodom.find({ "prediction_time" : { "$exists" : true } })
 
+db.Otodom.find({ "prediction_time" : { "$exists" : false } }).count()
+
+
+
 db.Otodom.distinct("GC_addr_suburb")
 
 

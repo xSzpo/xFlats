@@ -20,6 +20,18 @@ services:
     networks:
       - webnet
 
+  mlotodom:
+    build: ./app_ml_otodom
+    image: mlotodom:latest
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - scraperotodom
+    networks:
+      - webnet
+
+
   mongo:
     image: mongo:4.2.0-bionic
     restart: always
