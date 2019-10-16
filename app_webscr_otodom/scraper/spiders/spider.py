@@ -56,12 +56,12 @@ class OtodomListSpider(scrapy.Spider):
         self.pageCounter += 1
 
         logger.info("Prepare list of downloaded files:")
-        if 'LOCAL' in self.settings['SAVE_RESULTS']:
-            file_list = helpers.FilesLocal.list_files(self.settings['LOCAL_DATA_PATH'])
+        #if 'LOCAL' in self.settings['SAVE_RESULTS']:
+        #    file_list = helpers.FilesLocal.list_files(self.settings['LOCAL_DATA_PATH'])
 
-        if 'S3' in self.settings['SAVE_RESULTS']:
-            file_list = helpers.FilesS3.list_files(self.settings['BUCKET_NAME'],
-                                                   self.settings['BUCKET_PREFIX_BSON'])
+        #if 'S3' in self.settings['SAVE_RESULTS']:
+        #    file_list = helpers.FilesS3.list_files(self.settings['BUCKET_NAME'],
+        #                                           self.settings['BUCKET_PREFIX_BSON'])
 
         if 'MONGODB' in self.settings['SAVE_RESULTS']:
             self.mongo_connection = helpers.FilesMongo.set_connection(self.settings['MONGO_ADDRESS'],
@@ -69,7 +69,7 @@ class OtodomListSpider(scrapy.Spider):
                                     self.settings['MONGO_COLL_OTODOM'], self.settings['MONGO_USERNAME'],
                                     self.settings['MONGO_PASSWORD'])
 
-            file_list = helpers.FilesMongo.list_files(self.mongo_connection)
+            #file_list = helpers.FilesMongo.list_files(self.mongo_connection)
 
         if len([i for i in ['LOCAL', 'S3', 'MONGODB'] if i in self.settings['SAVE_RESULTS']]) == 0:
             raise Exception("Please specify where to save results")
@@ -89,15 +89,29 @@ class OtodomListSpider(scrapy.Spider):
             tmp['url_offer_list'] = response.url
             tmp['producer_name'] = self.name
             tmp["main_url"] = "otodom.pl"
-            #logger.info("JESTEM TUTAJ")
-            #raise CloseSpider(text)
+
             request = scrapy.Request(tmp['url'], callback=self.parse_one_article)
             request.meta['data'] = tmp
 
             price_str = ''.join([i for i in re.sub("[ ]", "", tmp["price"]) if i.isdigit()])
             file_name = tmp["tracking_id"]+"_"+price_str
 
-            if file_name not in file_list:
+            found_file = False
+
+            if 'LOCAL' in self.settings['SAVE_RESULTS']:
+                if helpers.FilesLocal.check_if_exists(file_name, self.settings['LOCAL_DATA_PATH']):
+                    found_file = True
+
+            if 'S3' in self.settings['SAVE_RESULTS']:
+                if helpers.FilesS3.check_if_exists(file_name, self.settings['BUCKET_NAME'],
+                                                   prefix=self.settings['BUCKET_PREFIX_BSON']):
+                    found_file = True
+
+            if 'MONGODB' in self.settings['SAVE_RESULTS']:
+                if helpers.FilesMongo.check_if_exists(file_name, self.mongo_connection, id_field='_id'):
+                    found_file = True
+
+            if not found_file:
                 logger.info("File {} is NOT in bucket -> download".format(file_name))
                 request.meta['file_name'] = file_name
                 yield request
