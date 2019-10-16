@@ -12,7 +12,8 @@ BOT_NAME = 'daniel'
 MAX_PAGES = 1
 XPATH_JSON_DIR = './scraper/spiders/xhpats.json'
 # save results to S3 or local
-SAVE_RESULTS = ['MONGODB'] #['LOCAL','S3','MONGODB']
+SAVE_RESULTS = ['LOCAL'] #['LOCAL','S3','MONGODB']
+
 
 # SAVE_RESULTS: local
 LOCAL_DATA_PATH = '/Users/xszpo/Google Drive/DataScience/DATA/01_otodom_scrapy'
@@ -20,8 +21,8 @@ LOCAL_DATA_PATH_PREP = '/Users/xszpo/Google Drive/DataScience/DATA/01_otodom_scr
 LOCAL_DATA_PATH_DICT = '/Users/xszpo/Google Drive/DataScience/DATA/DICT'
 
 # SAVE_RESULTS: S3
-BUCKET_NAME = '31b179a9-539e-4d1d-9686-3136fe76b662'
-BUCKET_PREFIX_BSON = 'offers_bson_new/'
+BUCKET_NAME = 'mojewiadroxszpo'
+BUCKET_PREFIX_BSON = 'offers_bson/'
 #FEED_FORMAT = 'jsonlines'
 
 # SAVE_RESULTS: MONGO
