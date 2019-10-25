@@ -25,13 +25,22 @@ USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36
 
 CRAWL_PAGES = 1
 
-#OUTPUT SETTING
-FEED_FORMAT = 'jsonlines'
-FEED_URI = "results.json"
 FEED_EXPORT_ENCODING = "UTF-8"
+
+#OUTPUT SETTING
+
+#local
+LOCAL_FILE_PATH = "/Users/xszpo/Google Drive/DataScience/Projects/201907_xFlat_AWS_Scrapy/app_webscr_pipe_otodom/data.jsonline"
+
+#kafka
+KAFKA_TOPIC = "xflats"
+KAFKA_HOST = "0.0.0.0"
+KAFKA_PORT = "9092"
 
 #PIELINES
 
 ITEM_PIPELINES = {
     'scraper.pipelines.OtodomListProcess': 300,
+    'scraper.pipelines.OutputLocal': 400,
+    'scraper.pipelines.OutputKafka': 401,
 }
