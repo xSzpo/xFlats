@@ -43,4 +43,5 @@ ITEM_PIPELINES = {
     'scraper.pipelines.OtodomListProcess': 300,
     'scraper.pipelines.OutputLocal': 400,
     'scraper.pipelines.OutputKafka': 401,
+    #'scraper.pipelines.OutputStdout': 402
 }

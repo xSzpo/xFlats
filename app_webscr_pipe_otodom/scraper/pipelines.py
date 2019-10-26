@@ -9,6 +9,7 @@ import numpy as np
 import re
 import codecs
 from pykafka import KafkaClient
+from scrapy.utils.serialize import ScrapyJSONEncoder
 
 import sys
 sys.path.append("..")
@@ -38,7 +39,7 @@ class OtodomListProcess(object):
 
 class OutputLocal:
 
-    def __init__(self, encoding, file_path):
+    def __init__(self, encoding, file_path,**kwargs):
         self.encoding = encoding
         self.file_path = file_path
         self.file = None
@@ -60,7 +61,7 @@ class OutputLocal:
 
     def process_item(self, item, spider):
         _ = spider
-        line = json.dumps(dict(item)) + "\n"
+        line = json.dumps(dict(item), ensure_ascii=False) + "\n"
         self.file.write(line)
         return item
 
@@ -84,7 +85,7 @@ class OutputKafka:
         )
 
     def open_spider(self, spider):
-        self.client = KafkaClient(hosts= self.kafka_host+":"+self.kafka_port)
+        self.client = KafkaClient(hosts=self.kafka_host+":"+self.kafka_port)
         self.topic = self.client.topics[self.kafka_topic]
         self.producer = self.topic.get_sync_producer()
 
@@ -96,4 +97,14 @@ class OutputKafka:
         data = str.encode(json.dumps(item))
         self.producer.produce(data)
         return item
+
+
+class OutputStdout:
+
+    def process_item(self, item, spider):
+        _ = spider
+        line = json.dumps(dict(item))
+        print(line)
+        return item
+
 
