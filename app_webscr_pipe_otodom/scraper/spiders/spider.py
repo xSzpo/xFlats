@@ -12,7 +12,7 @@ class QuotesSpider(scrapy.Spider):
         super().__init__()
         self.pageCounter = 0
 
-    name = "otodom"
+    name = "ListOtodom"
 
     with codecs.open("./scraper/spiders/xhpats.json", "r") as file:
         xpath_json = json.load(file)
