@@ -14,4 +14,4 @@ services:
     ports:
       - 27017:27017
     volumes:
-      - ./mongodb/db:/data/db
+      - ./db:/data/db
