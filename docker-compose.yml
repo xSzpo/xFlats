@@ -48,14 +48,14 @@ services:
       - webnet
 
   zookeeper:
-    image: wurstmeister/zookeeper:latest
+    image: wurstmeister/zookeeper:3.4.6
     ports:
       - "2181:2181"
     networks:
       - webnet
 
   kafka:
-    image: wurstmeister/kafka:latest
+    image: wurstmeister/kafka:2.12-2.3.0
     ports:
       - "9092:9092"
     environment:
@@ -64,6 +64,17 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - webnet
+
+  nify:
+    image: apache/nifi:1.9.2
+    ports:
+      - 9090:9090
+    environment:
+      NIFI_WEB_HTTP_PORT: 9090
+    volumes:
+      - ./nify/conf:/opt/nifi/nifi-current/conf/
     networks:
       - webnet
 

@@ -77,3 +77,5 @@ venv.bak/
 *.jsonlines
 mongodb/db/*
 !mongodb/db/.gitkeep
+/nify/conf/*
+!nify/conf/.gitkeep
