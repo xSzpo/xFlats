@@ -3,12 +3,12 @@
 # Define here the models for your spider middleware
 #
 # See documentation in:
-# https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+# https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
 
 
-class AppWebscrPipeOtodomSpiderMiddleware(object):
+class ScraperSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the spider middleware does not modify the
     # passed objects.
@@ -39,7 +39,7 @@ class AppWebscrPipeOtodomSpiderMiddleware(object):
         # Called when a spider or process_spider_input() method
         # (from other spider middleware) raises an exception.
 
-        # Should return either None or an iterable of Request, dict
+        # Should return either None or an iterable of Response, dict
         # or Item objects.
         pass
 
@@ -56,7 +56,7 @@ class AppWebscrPipeOtodomSpiderMiddleware(object):
         spider.logger.info('Spider opened: %s' % spider.name)
 
 
-class AppWebscrPipeOtodomDownloaderMiddleware(object):
+class ScraperDownloaderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the downloader middleware does not modify the
     # passed objects.

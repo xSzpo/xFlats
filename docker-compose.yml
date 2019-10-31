@@ -4,12 +4,14 @@ version: '3.1'
 services:
 
   scraperotodom:
-    build: ./app_webscr_otodom
-    image: scraperotodom:latest
+    build:
+      context: ./app_web
+      dockerfile: Dockerfile_app_otodom_list
+    image: app_otodom_list:0.0.1
     restart: always
     volumes:
-      - ./app_webscr_otodom/scraper/settings.py:/app/scraper/settings.py
-      - ./app_webscr_otodom/scraper/spiders/xhpats.json:/app/scraper/spiders/xhpats.json
+      - ./app_web/scraper/settings.py:/app/scraper/settings.py
+      - ./app_web/scraper/spiders/xhpats.json:/app/scraper/spiders/xhpats.json
     environment:
       SCRAPER_START_DELAY_SEC: 30
       SCRAPER_DELAY_AFTER_EACH_RUN_SEC: 180
@@ -22,7 +24,7 @@ services:
 
   mlotodom:
     build: ./app_ml_otodom
-    image: mlotodom:latest
+    image: mlotodom:0.0.1
     restart: always
     ports:
       - 8080:8080

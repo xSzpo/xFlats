@@ -98,16 +98,16 @@ class OtodomListSpider(scrapy.Spider):
 
             found_file = False
 
-            if 'LOCAL' in self.settings['SAVE_RESULTS']:
+            if 'LOCAL' in self.settings['SOURCE']:
                 if helpers.FilesLocal.check_if_exists(file_name, self.settings['LOCAL_DATA_PATH']):
                     found_file = True
 
-            if 'S3' in self.settings['SAVE_RESULTS']:
+            if 'S3' in self.settings['SOURCE']:
                 if helpers.FilesS3.check_if_exists(file_name, self.settings['BUCKET_NAME'],
                                                    prefix=self.settings['BUCKET_PREFIX_BSON']):
                     found_file = True
 
-            if 'MONGODB' in self.settings['SAVE_RESULTS']:
+            if 'MONGODB' in self.settings['SOURCE']:
                 if helpers.FilesMongo.check_if_exists(file_name, self.mongo_connection, id_field='_id'):
                     found_file = True
 
