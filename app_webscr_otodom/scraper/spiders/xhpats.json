@@ -1,5 +1,5 @@
 {
-  "start_urls" : ["https://www.otodom.pl/sprzedaz/mieszkanie/warszawa/?nrAdsPerPage=72"],
+  "start_urls" : ["https://www.otodom.pl/sprzedaz/mieszkanie/warszawa/"],
   "list_page_start_xpath" : "//div[@class='col-md-content section-listing__row-content']//article[starts-with(@class,'offer-item ad')]",
   "list_page_iter_xpaths" : {
         "gallery":"figure/@data-quick-gallery",
