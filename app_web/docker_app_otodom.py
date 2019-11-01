@@ -25,11 +25,13 @@ def scraper_otodom(event={}, context={}):
     settings['KAFKA_HOST'] = 'kafka'
 
     settings['ITEM_PIPELINES'] = {
-        'scraper.pipelines.ProcessListOtodom': 300,
-        #'scraper.pipelines.OutputLocal': 400,
-        #'scraper.pipelines.OutputKafka': 401,
-        #'scraper.pipelines.OutputStdout': 402,
-        #'scraper.pipelines.OutputMongo': 403
+        'scraper.pipelines.ProcessListOtodom': 100,
+        # 'scraper.pipelines.OutputLocal': 201,
+        # 'scraper.pipelines.OutputMongo': 202,
+        'scraper.pipelines.OutputS3': 203,
+        'scraper.pipelines.OutputFilter': 301,
+        # 'scraper.pipelines.OutputKafka': 401,
+        'scraper.pipelines.OutputStdout': 402
     }
 
     # wait until mongodb is ready

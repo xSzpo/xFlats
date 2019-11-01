@@ -1,6 +1,7 @@
 import scrapy
 import codecs
 import json
+import datetime
 
 import helpers
 import logging
@@ -46,7 +47,7 @@ class QuotesSpider(scrapy.Spider):
 
         tmp['additional_info'] = "|".join(response.xpath(self.article_page_iter_xpaths['additional_info']).getall())
         tmp['description'] = "\n".join(response.xpath(self.article_page_iter_xpaths['description']).getall())
-        tmp['download_date'] = helpers.Scraper.current_timestamp()
+        tmp['download_date'] = helpers.Scraper.current_datetime()
 
         tmp['geo_coordinates'], tmp['geo_address_text'], tmp['geo_address_coordin'] = helpers.Geodata.get_geodata(
             response.body)
