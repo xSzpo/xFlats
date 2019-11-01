@@ -16,11 +16,24 @@ from functools import reduce
 import codecs
 import pymongo
 from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError, WriteError, WriteConcernError, WTimeoutError
+import pytz
 import gc
 import json
+from scrapy import logformatter
 
 logger = logging.getLogger(__name__)
 
+
+class PoliteLogFormatter(logformatter.LogFormatter):
+    def dropped(self, item, exception, response, spider):
+        return {
+            'level': logging.INFO, # lowering the level from logging.WARNING
+            'msg': u"Dropped %s" % item['_id'],
+            'args': {
+                'exception': exception,
+                'item': item,
+            }
+        }
 
 class FilesMongo:
 
@@ -191,6 +204,15 @@ class Scraper:
     @staticmethod
     def current_timestamp():
         return int(datetime.datetime.now().timestamp())
+
+    @staticmethod
+    def current_datetime():
+        return datetime.datetime.now(pytz.timezone("Europe/Warsaw"))
+
+    @staticmethod
+    def datetime2str(dt):
+        if isinstance(dt, datetime.datetime):
+            return dt.__str__()
 
     @staticmethod
     def timestamp2datetime(timestamp):

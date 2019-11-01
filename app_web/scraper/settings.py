@@ -13,10 +13,10 @@
 # GENERAL SETTINGS
 ##################
 
-BOT_NAME = 'otodom'
 SPIDER_MODULES = ['scraper.spiders']
 NEWSPIDER_MODULE = 'scraper.spiders'
 LOG_LEVEL = 'INFO'
+LOG_FORMATTER = 'helpers.base.PoliteLogFormatter'
 FEED_EXPORT_ENCODING = "UTF-8"
 
 ################
@@ -31,6 +31,12 @@ LOGSTATS_INTERVAL = 0
 USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36 OPR/63.0.3368.75'
 CRAWL_LIST_PAGES = 2 #how many pages with links you want to crawl (start pages)
 DOWNLOAD_IMAGES = 3
+
+###################
+# PRODUCER SETTINGS
+###################
+
+BOT_NAME = 'otodom'
 
 
 #################
@@ -51,10 +57,8 @@ DOWNLOAD_DATE = 'download_date'
 
 # S3
 BUCKET_NAME = 'mojewiadroxszpo'
-BUCKET_PREFIX_BSON = 'offers_bson/'
 
 # local
-LOCAL_DATA_DIR = '/Users/xszpo/Google Drive/DataScience/DATA/01_otodom_scrapy'
 LOCAL_FILE_PATH = "/Users/xszpo/Google Drive/DataScience/Projects/201907_xFlat_AWS_Scrapy/app_web/data.jsonline"
 
 # kafka
@@ -66,9 +70,11 @@ KAFKA_PORT = "9092"
 ##########
 
 ITEM_PIPELINES = {
-    'scraper.pipelines.ProcessListOtodom': 300,
-    'scraper.pipelines.OutputLocal': 400,
+    'scraper.pipelines.ProcessListOtodom': 100,
+    #'scraper.pipelines.OutputLocal': 201,
+    #'scraper.pipelines.OutputMongo': 202,
+    'scraper.pipelines.OutputS3': 203,
+    'scraper.pipelines.OutputFilter': 301,
     #'scraper.pipelines.OutputKafka': 401,
-    #'scraper.pipelines.OutputStdout': 402,
-    'scraper.pipelines.OutputMongo': 403
+    #'scraper.pipelines.OutputStdout': 402
 }

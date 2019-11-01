@@ -9,24 +9,37 @@ import sys
 import json
 import re
 import codecs
-
+import bson
+from bson.json_util import dumps, loads
+import boto3
 import numpy as np
 from scrapy.exceptions import DropItem
 import kafka
 import pymongo
 from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError, WriteError, WriteConcernError, WTimeoutError
+from pymongo.errors import DuplicateKeyError
 
 sys.path.append("..")
 import helpers
 logger = logging.getLogger(__name__)
 
+
 class ProcessListOtodom(object):
 
     def process_item(self, item, spider):
         _ = spider
+
+        for key in ["price", "tracking_id", "name", "location", "flat_size", "description", "producer_name"]:
+            if item[key] == "" or item[key] is None:
+                raise DropItem("Missing >>%s<< value" % key)
+
+        if not any([i.isdigit() for i in item["price"]]):
+            raise DropItem("Missing >>%s<< value" % "price")
+
         price_str = ''.join([i for i in re.sub("[ ]", "", item["price"]) if i.isdigit()])
 
         item['_id'] = str(item["tracking_id"]) + "_" + price_str
+        item['_id'] = item['_id'].strip()
         item['GC_latitude'] = float(item['geo_coordinates']['latitude'])
         item['GC_longitude'] = float(item['geo_coordinates']['longitude'])
         item['GC_boundingbox'] = item['geo_address_coordin']['@boundingbox']
@@ -47,21 +60,22 @@ class ProcessListOtodom(object):
         item['additional_info'] = item['additional_info'].split("|")
         _ = item.pop('geo_coordinates')
         _ = item.pop('geo_address_coordin')
+        _ = item.pop('geo_address_text')
 
         # MODIFY DATA
-        item['flat_size'] = float(np.float32(helpers.Scraper.digits_from_str(item['flat_size']))) if \
+        item['flat_size'] = int(np.float32(helpers.Scraper.digits_from_str(item['flat_size']))) if \
             item['flat_size'] is not None else None
-        item['price'] = float(np.float32(helpers.Scraper.digits_from_str(item['price']))) if item[
-                                                                                 'price'] is not None else None
+        item['price'] = int(np.float32(helpers.Scraper.digits_from_str(item['price']))) if \
+                                                                                item['price'] is not None else None
         item['price_m2'] = helpers.Scraper.digits_from_str(item['price_m2']) if item['price_m2'] is not None else None
         item['rooms'] = int(helpers.Scraper.digits_from_str(item['rooms'])) if item['rooms'] is not None else None
         item['floor_attic'] = 1 if item['floor'] == 'poddasze' else 0
         item['floor_basement'] = 1 if item['floor'] == 'suterena' else 0
-        item['floor'] = float(np.float32(helpers.Scraper.convert_floor(item['floor']))) if isinstance(item['floor'],
+        item['floor'] = int(np.float32(helpers.Scraper.convert_floor(item['floor']))) if isinstance(item['floor'],
                                                                                                       str) else None
-        item['number_of_floors'] = float(np.float32(item['number_of_floors'])) if isinstance(item['number_of_floors'],
+        item['number_of_floors'] = int(np.float32(item['number_of_floors'])) if isinstance(item['number_of_floors'],
                                                                                              str) else None
-        item['year_of_building'] = float(np.float32(item['year_of_building'])) if isinstance(item['year_of_building'],
+        item['year_of_building'] = int(np.float32(item['year_of_building'])) if isinstance(item['year_of_building'],
                                                                                              str) else None
         item['rent_price'] = helpers.Scraper.digits_from_str(item['rent_price']) if \
             item['rent_price'] is not None else None
@@ -81,7 +95,7 @@ class ProcessListOtodom(object):
         tmp = {}
         for key in selected_col:
             tmp[key] = item[key]
-        return item
+        return tmp
 
 
 class OutputLocal:
@@ -108,7 +122,9 @@ class OutputLocal:
 
     def process_item(self, item, spider):
         _ = spider
-        line = json.dumps(dict(item), ensure_ascii=False) + "\n"
+        _tmp = item.copy()
+        _tmp['download_date'] = helpers.Scraper.datetime2str(item['download_date'])
+        line = json.dumps(dict(_tmp), ensure_ascii=False) + "\n"
         self.file.write(line)
         return item
 
@@ -136,7 +152,9 @@ class OutputKafka:
 
     def process_item(self, item, spider):
         _ = spider
-        data = str.encode(json.dumps(item))
+        _tmp = item.copy()
+        _tmp['download_date'] = helpers.Scraper.datetime2str(item['download_date'])
+        data = str.encode(json.dumps(_tmp))
         self.producer.send(item['producer_name'], data)
         return item
 
@@ -145,7 +163,9 @@ class OutputStdout:
 
     def process_item(self, item, spider):
         _ = spider
-        line = json.dumps(dict(item), ensure_ascii=False)
+        _tmp = item.copy()
+        _tmp['download_date'] = helpers.Scraper.datetime2str(item['download_date'])
+        line = json.dumps(dict(_tmp), ensure_ascii=False)
         print(line)
         return item
 
@@ -177,19 +197,57 @@ class OutputMongo(object):
     def process_item(self, item, spider):
 
         _ = spider
-        valid = True
-        for data in item:
-            if not data:
-                valid = False
-                raise DropItem("Missing {0}!".format(data))
-        if valid:
-            try:
-                w = self.db[item['producer_name']].update_one({self.id_field: item[self.id_field]}, item, upsert=True)
-                logger.info("MongoDB: save offer {} to mongodb, {}".format(item[self.id_field], w))
-                pass
-            except (ConnectionFailure, ServerSelectionTimeoutError) as e:
-                logger.error("pymongo.errors, Could not connect to server: %s" % e)
-            except (WriteError, WriteConcernError, WTimeoutError) as e:
-                logger.error("pymongo.errors, Write error: %s" % e)
-            except BaseException as e:
-                logger.error("BaseException, something went wrong: %s" % e)
+
+        try:
+            if not self.db[item['producer_name']].find_one({'_id': item[self.id_field]}, {'_id': 1}):
+                w = self.db[item['producer_name']].insert_one(item)
+                logger.info("MongoDB: save offer {}, {}".format(item[self.id_field], w))
+            else:
+                logger.info("MongoDB: don't save offer {}, already there".format(item[self.id_field]))
+                item["found"] = True
+        except (ConnectionFailure, ServerSelectionTimeoutError) as e:
+            logger.error("pymongo.errors, Could not connect to server: %s" % e)
+        except DuplicateKeyError as e:
+            logger.info("Do not save, record already in database error: %s" % e)
+        except (WriteError, WriteConcernError, WTimeoutError) as e:
+            logger.error("pymongo.errors, Write error: %s" % e)
+        except BaseException as e:
+            logger.error(item[self.id_field])
+            logger.error("BaseException, something went wrong: %s" % e)
+        return item
+
+
+class OutputS3:
+
+    def __init__(self, bucket_name):
+        self.bucket_name = bucket_name
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(
+            bucket_name=crawler.settings.get('BUCKET_NAME')
+        )
+
+    def process_item(self, item, spider):
+        _ = spider
+        _tmp = item.copy()
+        _tmp['download_date'] = helpers.Scraper.datetime2str(item['download_date'])
+        data_b_ = dumps(bson.BSON.encode(_tmp))
+        s3 = boto3.resource('s3')
+        bucket = s3.Bucket(self.bucket_name)
+        if len([i.key for i in bucket.objects.filter(Prefix=_tmp['producer_name']+"/"+_tmp['_id'])]) > 0:
+            logger.info("S3: don't save offer {} to S3, already there".format(_tmp['_id']))
+            item["found"] = True
+        else:
+            w = bucket.put_object(Key=_tmp['producer_name']+"/"+_tmp['_id']+".bson", Body=data_b_)
+            logger.info("S3: save offer {} to S3, {}".format(_tmp['_id'], w))
+        return item
+
+
+class OutputFilter:
+
+    def process_item(self, item, spider):
+        if "found" in item:
+            raise DropItem("Drop {}!".format(item['_id']))
+        else:
+            return item
