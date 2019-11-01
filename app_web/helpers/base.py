@@ -193,6 +193,10 @@ class Scraper:
         return int(datetime.datetime.now().timestamp())
 
     @staticmethod
+    def timestamp2datetime(timestamp):
+        return datetime.datetime.fromtimestamp(timestamp)
+
+    @staticmethod
     def contains_digit(x):
         return np.any([i.isdigit() for i in x])
 

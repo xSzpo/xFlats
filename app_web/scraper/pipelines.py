@@ -4,16 +4,21 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
+import logging
+import sys
 import json
-import numpy as np
 import re
 import codecs
-from pykafka import KafkaClient
 
-import sys
+import numpy as np
+from scrapy.exceptions import DropItem
+import kafka
+import pymongo
+from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError, WriteError, WriteConcernError, WTimeoutError
+
 sys.path.append("..")
 import helpers
-
+logger = logging.getLogger(__name__)
 
 class ProcessListOtodom(object):
 
@@ -110,26 +115,21 @@ class OutputLocal:
 
 class OutputKafka:
 
-    def __init__(self, kafka_topic, kafka_host, kafka_port):
-        self.kafka_topic = kafka_topic
+    def __init__(self, kafka_host, kafka_port):
         self.kafka_host = kafka_host
         self.kafka_port = kafka_port
         self.client = None
-        self.topic = None
         self.producer = None
 
     @classmethod
     def from_crawler(cls, crawler):
         return cls(
-            kafka_topic=crawler.settings.get('KAFKA_TOPIC'),
             kafka_host=crawler.settings.get('KAFKA_HOST'),
             kafka_port=crawler.settings.get('KAFKA_PORT'),
         )
 
     def open_spider(self, spider):
-        self.client = KafkaClient(hosts=self.kafka_host+":"+self.kafka_port)
-        self.topic = self.client.topics[self.kafka_topic]
-        self.producer = self.topic.get_sync_producer()
+        self.producer = kafka.KafkaProducer(hosts=self.kafka_host+":"+self.kafka_port)
 
     def close_spider(self, spider):
         self.producer.stop()
@@ -137,7 +137,7 @@ class OutputKafka:
     def process_item(self, item, spider):
         _ = spider
         data = str.encode(json.dumps(item))
-        self.producer.produce(data)
+        self.producer.send(item['producer_name'], data)
         return item
 
 
@@ -148,3 +148,48 @@ class OutputStdout:
         line = json.dumps(dict(item), ensure_ascii=False)
         print(line)
         return item
+
+
+class OutputMongo(object):
+
+    def __init__(self, mongo_adrress, mongo_port, mongo_dbname, mongo_username, mongo_password,
+                 id_field, download_date):
+
+        connection = pymongo.MongoClient(host=mongo_adrress, port=mongo_port, username=mongo_username,
+                                         password=mongo_password, authSource='admin', authMechanism='SCRAM-SHA-256',
+                                         serverSelectionTimeoutMS=5000)
+        self.db = connection[mongo_dbname]
+        self.id_field = id_field
+        self.download_date = download_date
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(
+            mongo_adrress=crawler.settings.get('MONGO_ADDRESS'),
+            mongo_port=crawler.settings.get('MONGO_PORT'),
+            mongo_dbname=crawler.settings.get('MONGO_DBNAME'),
+            mongo_username=crawler.settings.get('MONGO_USERNAME'),
+            mongo_password=crawler.settings.get('MONGO_PASSWORD'),
+            id_field=crawler.settings.get('ID_FIELD'),
+            download_date=crawler.settings.get('DOWNLOAD_DATE')
+        )
+
+    def process_item(self, item, spider):
+
+        _ = spider
+        valid = True
+        for data in item:
+            if not data:
+                valid = False
+                raise DropItem("Missing {0}!".format(data))
+        if valid:
+            try:
+                w = self.db[item['producer_name']].update_one({self.id_field: item[self.id_field]}, item, upsert=True)
+                logger.info("MongoDB: save offer {} to mongodb, {}".format(item[self.id_field], w))
+                pass
+            except (ConnectionFailure, ServerSelectionTimeoutError) as e:
+                logger.error("pymongo.errors, Could not connect to server: %s" % e)
+            except (WriteError, WriteConcernError, WTimeoutError) as e:
+                logger.error("pymongo.errors, Write error: %s" % e)
+            except BaseException as e:
+                logger.error("BaseException, something went wrong: %s" % e)
