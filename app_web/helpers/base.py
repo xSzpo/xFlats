@@ -7,9 +7,6 @@ import requests
 import xmltodict
 import re
 import numpy as np
-from PIL import Image
-import PIL
-from io import BytesIO
 import bson
 from bson.json_util import dumps, loads
 from functools import reduce
@@ -18,7 +15,6 @@ import pymongo
 from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError, WriteError, WriteConcernError, WTimeoutError
 import pytz
 import gc
-import json
 from scrapy import logformatter
 
 logger = logging.getLogger(__name__)
@@ -223,55 +219,6 @@ class Scraper:
         return np.any([i.isdigit() for i in x])
 
     @staticmethod
-    def download_img_url(url):
-        bytes_first_img=requests.get(url).content
-        first_img = Image.open(BytesIO(bytes_first_img))
-        return first_img
-
-    @staticmethod
-    def resize_img(img, basewidth=300):
-        if max(img.size[0], img.size[1]) < basewidth:
-            return img
-        elif img.size[0] >= img.size[1]:
-            hpercent = (basewidth / float(img.size[1]))
-            wsize = int((float(img.size[0]) * float(hpercent)))
-            return img.resize((wsize, basewidth), PIL.Image.ANTIALIAS)
-        else:
-            wpercent = (basewidth / float(img.size[0]))
-            hsize = int((float(img.size[1]) * float(wpercent)))
-            return img.resize((basewidth, hsize), PIL.Image.ANTIALIAS)
-
-    @staticmethod
-    def byte_img_to_str(image):
-        """take PIL.Image.Image object and converts to string
-        helper function to save image in bson
-        :param image:
-        :return:
-        """
-
-        try:
-            imgbytearr = BytesIO()
-            image.save(imgbytearr, 'JPEG', quality=90)
-            imgbytearr = imgbytearr.getvalue()
-            return imgbytearr
-        except BaseException:
-            return None
-
-    @staticmethod
-    def imgurl2str(url):
-        img = Scraper.download_img_url(url)
-        img = Scraper.resize_img(img)
-        img = Scraper.byte_img_to_str(img)
-        return img
-
-    @staticmethod
-    def open_img_from_str(str_img):
-        try:
-            return Image.open(BytesIO(str_img))
-        except BaseException:
-            return None
-
-    @staticmethod
     def dict_except(dictionary, except_keys=[], include_keys=None):
         temp = {}
         for key in dictionary:
@@ -362,29 +309,3 @@ class Geodata:
         address_coordin = xmltodict.parse(address.content)['reversegeocode']['result']
 
         return geocoordinates, address_text, address_coordin
-
-
-class Test:
-
-    @staticmethod
-    def check_list(nbr, response_):
-        with codecs.open("./scraper/spiders/xhpats.json", "r") as file:
-            xpathjson = json.load(file)
-
-        lista = response_.xpath(xpathjson['list_page_start_xpath'])
-        xpathjson=xpathjson['list_page_iter_xpaths']
-        name = list(xpathjson.keys())[nbr]
-        text = ""
-        for i in lista:
-            value = response_.xpath(xpathjson[name]).getall()
-            text += "number: {}, name: {}, value: {} \n".format(nbr, name, value)
-        return text
-
-    @staticmethod
-    def check_offer(nbr, response_):
-        with codecs.open("./scraper/spiders/xhpats.json", "r") as file:
-            xpathjson = json.load(file)
-        xpathjson=xpathjson['article_page_iter_xpaths']
-        name = list(xpathjson.keys())[nbr]
-        value = response_.xpath(xpathjson[name]).getall()
-        return value, "number: {}, name: {}, value: {}".format(nbr, name, value)
