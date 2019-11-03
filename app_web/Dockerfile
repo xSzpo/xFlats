@@ -15,9 +15,10 @@ COPY . /app
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
 # set scraper start delay
-ENV SCRAPER_START_DELAY_SEC 60
+ENV SCRAPER_START_DELAY_SEC 10
 
 # run
-CMD ["python", "-u","/app/docker_app.py"]
+CMD ["python", "-u","/app/docker_app_otodom.py", "&"]
+CMD ["python", "-u","/app/docker_app_olx.py", "&"]
 
 

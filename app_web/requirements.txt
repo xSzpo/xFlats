@@ -1,4 +1,5 @@
 pip
+pytz
 lxml
 boto3
 requests
@@ -10,3 +11,4 @@ botocore
 xmltodict
 Scrapy
 twisted
+kafka-python

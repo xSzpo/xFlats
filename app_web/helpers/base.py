@@ -304,22 +304,24 @@ class Scraper:
     def convert_floor(x):
         if x.isdigit():
             return int(x)
-        elif x == 'parter':
-            return 0
-        elif x == 'suterena':
-            return np.NaN
+        elif x.lower() == 'parter':
+            return int(0)
+        elif x.lower() == 'suterena':
+            return None
         elif x == '> 10':
-            return 11
+            return int(11)
+        elif x.lower() == 'powyżej 10':
+            return int(11)
         elif x == 'poddasze':
-            return np.NaN
+            return None
         else:
-            return np.NaN
+            return None
 
 
 class Geodata:
 
     @staticmethod
-    def get_geodata(content, compressed=False):
+    def get_geodata_otodom(content, compressed=False):
         content = bz2.decompress(content) if compressed else content
 
         list_geo = re.findall('geo..\{(.*?)\}', content.decode("utf-8"))
@@ -327,6 +329,28 @@ class Geodata:
         text = text.replace('"', '')
 
         geocoordinates = dict([i.split(":") for i in text.split(",")])
+
+        address = requests.get(
+            "https://nominatim.openstreetmap.org/reverse?format=xml&lat={latitude}&lon={longitude}&zoom=18&addressdetails=1".format(
+                **geocoordinates)
+        )
+
+        address_text = xmltodict.parse(address.content)['reversegeocode']['addressparts']
+
+        address_coordin = xmltodict.parse(address.content)['reversegeocode']['result']
+
+        return geocoordinates, address_text, address_coordin
+
+    @staticmethod
+    def get_geodata_olx(content, compressed=False):
+        content = bz2.decompress(content) if compressed else content
+
+        data_lat = re.findall("data-lat.{2}[\d]{2}.[\d]{8}.", content.decode("utf-8"))[0]
+        data_lat = "".join([i for i in data_lat if i.isdigit() or i == "."])
+        data_lon = re.findall("data-lon.{2}[\d]{2}.[\d]{8}.", content.decode("utf-8"))[0]
+        data_lon = "".join([i for i in data_lon if i.isdigit() or i == "."])
+
+        geocoordinates = {"latitude": data_lat, "longitude": data_lon}
 
         address = requests.get(
             "https://nominatim.openstreetmap.org/reverse?format=xml&lat={latitude}&lon={longitude}&zoom=18&addressdetails=1".format(

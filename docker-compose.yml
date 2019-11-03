@@ -3,45 +3,14 @@ version: '3.1'
 
 services:
 
-  scraperotodom:
-    build:
-      context: ./app_web
-      dockerfile: Dockerfile_app_otodom_list
-    image: app_otodom_list:0.0.1
-    restart: always
-    volumes:
-      - ./app_web/scraper/settings.py:/app/scraper/settings.py
-      - ./app_web/scraper/spiders/xhpats.json:/app/scraper/spiders/xhpats.json
-    environment:
-      SCRAPER_START_DELAY_SEC: 30
-      SCRAPER_DELAY_AFTER_EACH_RUN_SEC: 180
-    depends_on:
-      - mongo
-      - zookeeper
-      - kafka
-    networks:
-      - webnet
-
-  mlotodom:
-    build: ./app_ml_otodom
-    image: mlotodom:0.0.1
-    restart: always
-    ports:
-      - 8080:8080
-    depends_on:
-      - scraperotodom
-    networks:
-      - webnet
-
-
   mongo:
     image: mongo:4.2.0-bionic
     restart: always
     environment:
-      MONGO_INITDB_DATABASE: Otodom
+      MONGO_INITDB_DATABASE: OFFERS
       MONGO_INITDB_ROOT_USERNAME: xflats
       MONGO_INITDB_ROOT_PASSWORD: xflats
-      #docker run -p 27017:27017 -e "MONGO_INITDB_DATABASE=Otodom" -e "MONGO_INITDB_ROOT_USERNAME=xflats" -e "MONGO_INITDB_ROOT_PASSWORD=xflats" mongo
+      #docker run -p 27017:27017 -e "MONGO_INITDB_DATABASE=OFFERS" -e "MONGO_INITDB_ROOT_USERNAME=xflats" -e "MONGO_INITDB_ROOT_PASSWORD=xflats" mongo
     ports:
       - 27017:27017
     volumes:
@@ -62,7 +31,7 @@ services:
       - "9092:9092"
     environment:
       KAFKA_ADVERTISED_HOST_NAME: kafka
-      KAFKA_CREATE_TOPICS: "Otodom:1:1,Olx:1:1"
+      KAFKA_CREATE_TOPICS: "otodom:1:2,olx:1:2"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -77,6 +46,34 @@ services:
       NIFI_WEB_HTTP_PORT: 9090
     volumes:
       - ./nify/conf:/opt/nifi/nifi-current/conf/
+    networks:
+      - webnet
+
+  mlotodom:
+    build: ./app_mlmodel
+    image: app_mlmodel:0.0.1
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - webnet
+
+  scraper:
+    build:
+      context: ./app_web
+      dockerfile: Dockerfile
+    image: app_scraper:0.0.1
+    restart: always
+    volumes:
+      - ./app_web/scraper/settings.py:/app/scraper/settings.py
+      - ./app_web/scraper/spiders/xhpats.json:/app/scraper/spiders/xhpats.json
+    environment:
+      SCRAPER_START_DELAY_SEC: 60
+      SCRAPER_DELAY_AFTER_EACH_RUN_SEC: 180
+    depends_on:
+      - mongo
+      - zookeeper
+      - kafka
     networks:
       - webnet
 
