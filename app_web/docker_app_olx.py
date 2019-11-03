@@ -39,7 +39,7 @@ def scraper(event={}, context={}):
     scrapy_del = int(os.environ['SCRAPER_DELAY_AFTER_EACH_RUN_SEC']) if \
         'SCRAPER_DELAY_AFTER_EACH_RUN_SEC' in os.environ.keys() else 60
 
-    ScrapyLoop(settings=settings, success_interval=scrapy_del).loop_crawl('otodom')
+    ScrapyLoop(settings=settings, success_interval=scrapy_del).loop_crawl('olx')
 
     return {
         'statusCode': 200,
