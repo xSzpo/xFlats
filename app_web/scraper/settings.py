@@ -71,12 +71,12 @@ KAFKA_PORT = "9092"
 
 ITEM_PIPELINES = {
     'scraper.pipelines.ProcessItem': 100,
-    'scraper.pipelines.OutputLocal': 201,
-    #'scraper.pipelines.OutputMongo': 202,
+    'scraper.pipelines.CheckIfExistMongo':105,
+    'scraper.pipelines.OutputFilter': 110,
+    'scraper.pipelines.ProcessItemGeocode':115,
+    #'scraper.pipelines.OutputLocal': 201,
+    'scraper.pipelines.OutputMongo': 202,
     #'scraper.pipelines.OutputS3': 203,
-    #'scraper.pipelines.OutputFilter': 301,
     #'scraper.pipelines.OutputKafka': 401,
     #'scraper.pipelines.OutputStdout': 402
 }
-
-
