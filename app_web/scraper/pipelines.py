@@ -228,9 +228,6 @@ class OutputKafka:
     def open_spider(self, spider):
         self.producer = kafka.KafkaProducer(bootstrap_servers=self.kafka_host+":"+self.kafka_port)
 
-    def close_spider(self, spider):
-        self.producer.stop()
-
     def process_item(self, item, spider):
         _ = spider
         _tmp = item.copy()

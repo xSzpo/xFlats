@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-# docker run -it python:3.7-alpine /bin/ash
+# docker run -it python:3.7-alpine /bin/bash
 # docker run -it python:3.7.2-slim bash
 #FROM python:3.6-slim
 
@@ -15,10 +15,9 @@ COPY . /app
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
 # set scraper start delay
-ENV SCRAPER_START_DELAY_SEC 10
+ENV SCRAPER_START_DELAY_SEC 30
 
 # run
-CMD ["python", "-u","/app/docker_app_otodom.py", "&"]
-CMD ["python", "-u","/app/docker_app_olx.py", "&"]
+CMD ["python", "-u","/app/docker_app_olx.py"]
 
 
