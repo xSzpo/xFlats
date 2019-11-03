@@ -33,6 +33,11 @@ class Spider1(scrapy.Spider):
         # after you crawl each offer in current page go to the next page
         next_page = response.css('li.pager-next a::attr(href)').get()
 
+        if next_page is None:
+            logger.info("OTODOM: next page is none, iter {}".format(self.pageCounter))
+        else:
+            logger.info("OTODOM: next page, iter {}".format(self.pageCounter))
+
         if next_page is not None and self.pageCounter < self.settings['CRAWL_LIST_PAGES']:
             self.pageCounter += 1
             yield response.follow(next_page, callback=self.parse)
@@ -81,6 +86,12 @@ class Spider2(scrapy.Spider):
 
         # after you crawl each offer in current page go to the next page
         next_page = response.css("span.fbold.next.abs.large a::attr(href)").get()
+        #next_page = response.xpath("//a[contains(@href,'?page') and contains(@class,'pageNextPrev')]/@href").get()
+        if next_page is None:
+            logger.info("OLX: next page is none, iter {}".format(self.pageCounter))
+        else:
+            logger.info("OLX: next page, iter {}".format(self.pageCounter))
+
 
         if next_page is not None and self.pageCounter < self.settings['CRAWL_LIST_PAGES']:
             self.pageCounter += 1

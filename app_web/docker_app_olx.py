@@ -24,6 +24,7 @@ def scraper(event={}, context={}):
     settings['MONGO_ADDRESS'] = 'mongo'
     settings['KAFKA_HOST'] = 'kafka'
     settings['CRAWL_LIST_PAGES'] = 1
+    settings['CONCURRENT_REQUESTS'] = 1
 
     settings['ITEM_PIPELINES'] = {
         'scraper.pipelines.ProcessItem': 100, #transform data

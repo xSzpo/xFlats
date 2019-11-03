@@ -3,6 +3,15 @@ db.otodom.createIndex({"download_date": 1})
 db.olx.createIndex({"download_date": 1})
 
 
+db.olx.find({"_id":"olx_506908384_417000"})
+
+db.otodom.find({}).count()
+db.olx.find({}).count()
+
+db.otodom.find({}).sort({"download_date":-1}).limit(10)
+db.olx.find({}).sort({"download_date":-1}).limit(10)
+
+
 db.Otodom.find({"download_date" : {"$gt": ISODate("2019-10-01 20:16:00.248Z") }}).sort({"download_date":-1}).limit(10)
 db.Otodom.find({})
 
@@ -31,7 +40,7 @@ db.Otodom.find({}).sort({"download_date":-1}).limit(10)
 
 db.Otodom.createIndex({ price_model_dif: 1 })
 
-db.Otodom.find({ "prediction_time" : { "$exists" : true } }).count()
+db.otodom.find({ "GC_addr_city" : { "$exists" : false } })
 
 db.Otodom.find({ "prediction_time" : { "$exists" : true } })
 
