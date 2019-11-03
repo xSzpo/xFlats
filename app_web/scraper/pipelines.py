@@ -32,6 +32,8 @@ class ProcessItem(object):
             item = self.process_item_ototdom(item)
         elif item['producer_name'] == 'olx':
             item = self.process_item_olx(item)
+        elif item['producer_name'] == 'gratka':
+            item = self.process_item_gratka(item)
         else:
             raise ValueError
         return item
@@ -177,6 +179,72 @@ class ProcessItem(object):
             tmp[key] = item[key]
         return tmp
 
+    def process_item_gratka(self, item):
+
+        for key in ["price", "tracking_id", "name", "location", "flat_size", "description", "producer_name"]:
+            if item[key] == "" or item[key] is None:
+                raise DropItem("Missing >>%s<< value" % key)
+
+        if not any([i.isdigit() for i in item["price"]]):
+            raise DropItem("Missing >>%s<< value" % "price")
+
+        price_str = ''.join([i for i in re.sub("[ ]", "", item["price"]) if i.isdigit()])
+
+        item['tracking_id'] = item['tracking_id'].strip()
+        item['_id'] = "gra_"+str(item["tracking_id"]) + "_" + price_str
+        item['GC_latitude'] = float(item['geo_coordinates']['latitude'])
+        item['GC_longitude'] = float(item['geo_coordinates']['longitude'])
+        item['GC_boundingbox'] = item['geo_address_coordin']['@boundingbox']
+        item['GC_addr_house_number'] = item['geo_address_text']['house_number'] if 'house_number' in item[
+            'geo_address_text'] else None
+        item['GC_addr_road'] = item['geo_address_text']['road'] if 'road' in item['geo_address_text'] else None
+        item['GC_addr_neighbourhood'] = item['geo_address_text']['neighbourhood'] if 'neighbourhood' in item[
+            'geo_address_text'] else None
+        item['GC_addr_suburb'] = item['geo_address_text']['suburb'] if 'suburb' in item['geo_address_text'] else None
+        item['GC_addr_city'] = item['geo_address_text']['city'] if 'city' in item['geo_address_text'] else None
+        item['GC_addr_county'] = item['geo_address_text']['county'] if 'country' in item['geo_address_text'] else None
+        item['GC_addr_state'] = item['geo_address_text']['state'] if 'state' in item['geo_address_text'] else None
+        item['GC_addr_postcode'] = item['geo_address_text']['postcode'] if 'postcode' in item[
+            'geo_address_text'] else None
+        item['GC_addr_country'] = item['geo_address_text']['country'] if 'country' in item['geo_address_text'] else None
+        item['GC_addr_country_code'] = item['geo_address_text']['country_code'] if 'country_code' in item[
+            'geo_address_text'] else None
+        _ = item.pop('geo_coordinates')
+        _ = item.pop('geo_address_coordin')
+        _ = item.pop('geo_address_text')
+
+        # MODIFY DATA
+        item['flat_size'] = int(np.float32(helpers.Scraper.digits_from_str(item['flat_size']))) if \
+            item['flat_size'] is not None else None
+
+        item['price'] = int(np.float32(helpers.Scraper.digits_from_str(item['price']))) if \
+                                                                                item['price'] is not None else None
+        item['price_m2'] = helpers.Scraper.digits_from_str(item['price_m2']) if item['price_m2'] is not None else None
+        item['rooms'] = int(helpers.Scraper.digits_from_str(item['rooms'])) if item['rooms'] is not None else None
+        item['floor'] = item['floor'].strip() if item['floor'] is not None else None
+        item['floor_attic'] = 1 if item['floor'] == 'poddasze' else 0
+        item['floor_basement'] = 1 if item['floor'] == 'suterena' else 0
+
+        item['floor'] = helpers.Scraper.convert_floor(item['floor']) if isinstance(item['floor'], str) else None
+
+        item['name'] = item['name'].strip() if item['name'] is not None else None
+        item['location'] = item['location'].strip() if item['location'] is not None else None
+        item['description'] = item['description'].strip() if item['description'] is not None else None
+        item['building_type'] = item['building_type'].strip() if item['building_type'] is not None else None
+
+        selected_col = ['_id', 'name', 'location', 'flat_size', 'rooms', 'floor', 'price', 'tracking_id',
+                   'url', 'producer_name', 'main_url', 'price_m2', 'floor_attic','floor_basement', 'building_type',
+                   'description','number_of_floors','building_material','year_of_building','rent_price','property_form',
+                   'ref_number', 'comute','health_beauty','education','other',
+                   'GC_latitude', 'GC_longitude', 'GC_boundingbox', 'GC_addr_house_number', 'GC_addr_road',
+                   'GC_addr_neighbourhood', 'GC_addr_suburb', 'GC_addr_city', 'GC_addr_county', 'GC_addr_state',
+                   'GC_addr_postcode', 'GC_addr_country', 'GC_addr_country_code', 'url', 'main_url','tracking_id',
+                   'download_date']
+
+        tmp = {}
+        for key in selected_col:
+            tmp[key] = item[key]
+        return tmp
 
 class OutputLocal:
 

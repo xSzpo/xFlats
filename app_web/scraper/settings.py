@@ -29,7 +29,7 @@ CONCURRENT_REQUESTS = 1
 DOWNLOAD_DELAY = 0.5
 LOGSTATS_INTERVAL = 0
 USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36 OPR/63.0.3368.75'
-CRAWL_LIST_PAGES = 300 #how many pages with links you want to crawl (start pages)
+CRAWL_LIST_PAGES = 1 #how many pages with links you want to crawl (start pages)
 DOWNLOAD_IMAGES = 3
 
 ###################
@@ -71,8 +71,8 @@ KAFKA_PORT = "9092"
 
 ITEM_PIPELINES = {
     'scraper.pipelines.ProcessItem': 100,
-    #'scraper.pipelines.OutputLocal': 201,
-    'scraper.pipelines.OutputMongo': 202,
+    'scraper.pipelines.OutputLocal': 201,
+    #'scraper.pipelines.OutputMongo': 202,
     #'scraper.pipelines.OutputS3': 203,
     #'scraper.pipelines.OutputFilter': 301,
     #'scraper.pipelines.OutputKafka': 401,
