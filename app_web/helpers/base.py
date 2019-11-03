@@ -269,7 +269,7 @@ class Geodata:
 
     @staticmethod
     def get_geodata_otodom(content, compressed=False):
-        content = bz2.decompress(content) if compressed else content
+        #content = bz2.decompress(content) if compressed else content
 
         list_geo = re.findall('geo..\{(.*?)\}', content.decode("utf-8"))
         text = [row for row in list_geo if Scraper.contains_digit(row)][0]
@@ -290,7 +290,7 @@ class Geodata:
 
     @staticmethod
     def get_geodata_olx(content, compressed=False):
-        content = bz2.decompress(content) if compressed else content
+        #content = bz2.decompress(content) if compressed else content
 
         data_lat = re.findall("data-lat.{2}[\d]{2}.[\d]{8}.", content.decode("utf-8"))[0]
         data_lat = "".join([i for i in data_lat if i.isdigit() or i == "."])
@@ -298,7 +298,6 @@ class Geodata:
         data_lon = "".join([i for i in data_lon if i.isdigit() or i == "."])
 
         geocoordinates = {"latitude": data_lat, "longitude": data_lon}
-
         address = requests.get(
             "https://nominatim.openstreetmap.org/reverse?format=xml&lat={latitude}&lon={longitude}&zoom=18&addressdetails=1".format(
                 **geocoordinates)

@@ -1,7 +1,7 @@
 {
       "otodom": {
             "start_urls": [
-                  "https://www.otodom.pl/sprzedaz/mieszkanie/warszawa/"
+                  "https://www.otodom.pl/sprzedaz/mieszkanie/warszawa"
             ],
             "list_page_start_xpath": "//div[@class='col-md-content section-listing__row-content']//article[starts-with(@class,'offer-item ad')]",
             "list_page_iter_xpaths": {
@@ -35,9 +35,9 @@
       },
       "olx": {
             "start_urls": [
-                  "https://www.olx.pl/nieruchomosci/mieszkania/sprzedaz/warszawa/"
+                  "https://www.olx.pl/nieruchomosci/mieszkania/sprzedaz/warszawa"
             ],
-            "url": "//a[contains(@href,'www.olx.pl/oferta') and @data-cy]/@href",
+            "url": "//a[contains(@href,'www.olx.pl/oferta')]/@href",
             "article_page_iter_xpaths": {
                   "offer_type": "//table[contains(@class,'item')]//tr[contains(th/text(),'Oferta od')]//td//text()[normalize-space()]",
                   "name": "//div[@class='offer-titlebox']/h1/text()",
