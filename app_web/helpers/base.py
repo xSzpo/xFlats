@@ -257,6 +257,8 @@ class Scraper:
             return None
         elif x == '> 10':
             return int(11)
+        elif x.isdigit() and x > 10:
+            return int(11)
         elif x.lower() == 'powyżej 10':
             return int(11)
         elif x == 'poddasze':
@@ -295,6 +297,27 @@ class Geodata:
         data_lat = re.findall("data-lat.{2}[\d]{2}.[\d]{8}.", content.decode("utf-8"))[0]
         data_lat = "".join([i for i in data_lat if i.isdigit() or i == "."])
         data_lon = re.findall("data-lon.{2}[\d]{2}.[\d]{8}.", content.decode("utf-8"))[0]
+        data_lon = "".join([i for i in data_lon if i.isdigit() or i == "."])
+
+        geocoordinates = {"latitude": data_lat, "longitude": data_lon}
+        address = requests.get(
+            "https://nominatim.openstreetmap.org/reverse?format=xml&lat={latitude}&lon={longitude}&zoom=18&addressdetails=1".format(
+                **geocoordinates)
+        )
+
+        address_text = xmltodict.parse(address.content)['reversegeocode']['addressparts']
+
+        address_coordin = xmltodict.parse(address.content)['reversegeocode']['result']
+
+        return geocoordinates, address_text, address_coordin
+
+    @staticmethod
+    def get_geodata_gratka(content, compressed=False):
+        #content = bz2.decompress(content) if compressed else content
+
+        data_lat = re.findall("szerokosc-geograficzna-y..[\d]{2}\\.[\d]+", content.decode("utf-8"))[0]
+        data_lat = "".join([i for i in data_lat if i.isdigit() or i == "."])
+        data_lon = re.findall("dlugosc-geograficzna-x..[\d]{2}\\.[\d]+", content.decode("utf-8"))[0]
         data_lon = "".join([i for i in data_lon if i.isdigit() or i == "."])
 
         geocoordinates = {"latitude": data_lat, "longitude": data_lon}

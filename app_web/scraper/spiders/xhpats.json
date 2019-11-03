@@ -54,6 +54,33 @@
                   "umeblowane": "//table[contains(@class,'item')]//tr[contains(th/text(),'Umeblowane')]//td//text()[normalize-space()]"
             }
       },
+      "gratka": {"start_urls": [
+                  "https://gratka.pl/nieruchomosci/mieszkania/warszawa/sprzedaz"
+            ],
+            "url":"//a[contains(@href,'gratka.pl/nieruchomosci/') and (@class='teaser__anchor' or @class='recommendedOffers__imgBox')]//@href",
+            "article_page_iter_xpaths": {
+                  "reference_id": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Numer referencyjny')]/b[@class='parameters__value']/text()[normalize-space()]",
+                  "name": "//h1[@class='sticker__title']/text()",
+                  "location": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Lokalizacja')]/b[@class='parameters__value']//a//text()",
+                  "price": "//span[@class='priceInfo__value']/text()",
+                  "price_m2": "//span[@class='priceInfo__additional']/text()",
+                  "flat_size": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Powierzchnia w m2')]/b[@class='parameters__value']/text()[normalize-space()]",
+                  "rooms": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Liczba pokoi')]/b[@class='parameters__value']/text()[normalize-space()]",
+                  "building_type": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Typ zabudowy')]/b[@class='parameters__value']/text()[normalize-space()]",
+                  "floor": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Piętro')]/b[@class='parameters__value']/text()[normalize-space()]",
+                  "number_of_floors": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Liczba pięter w budynku')]/b[@class='parameters__value']/text()[normalize-space()]",
+                  "building_material": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Materiał budynku')]/b[@class='parameters__value']/text()[normalize-space()]",
+                  "year_of_building": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Rok budowy')]/b[@class='parameters__value']/text()[normalize-space()]",
+                  "rent_price": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Opłaty (czynsz administracyjny, media)')]/b[@class='parameters__value']/text()[normalize-space()]",
+                  "property_form": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Forma własności')]/b[@class='parameters__value']/text()[normalize-space()]",
+                  "description": "//div[@class='description']//text()[normalize-space()]",
+                  "ref_number": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Numer referencyjny')]/b[@class='parameters__value']//text()[normalize-space()]",
+                  "comute": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Komunikacja')]/b[@class='parameters__value']//text()[normalize-space()]",
+                  "health_beauty": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Zdrowie i uroda')]/b[@class='parameters__value']//text()[normalize-space()]",
+                  "education": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Edukacja')]/b[@class='parameters__value']//text()[normalize-space()]",
+                  "other": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Pozostałe')]/b[@class='parameters__value']//text()[normalize-space()]"
+            }
+      },
       "backup" : {
             "number_of_floors": "",
             "building_material": "",
