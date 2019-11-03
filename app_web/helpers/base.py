@@ -2,7 +2,6 @@ import logging
 import os
 import boto3
 import datetime
-import bz2
 import requests
 import xmltodict
 import re
@@ -16,6 +15,7 @@ from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError, Write
 import pytz
 import gc
 from scrapy import logformatter
+from scrapy.exceptions import DropItem
 
 logger = logging.getLogger(__name__)
 
@@ -270,64 +270,50 @@ class Scraper:
 class Geodata:
 
     @staticmethod
-    def get_geodata_otodom(content, compressed=False):
-        #content = bz2.decompress(content) if compressed else content
+    def get_geodata_otodom(content):
 
         list_geo = re.findall('geo..\{(.*?)\}', content.decode("utf-8"))
         text = [row for row in list_geo if Scraper.contains_digit(row)][0]
         text = text.replace('"', '')
-
         geocoordinates = dict([i.split(":") for i in text.split(",")])
 
-        address = requests.get(
-            "https://nominatim.openstreetmap.org/reverse?format=xml&lat={latitude}&lon={longitude}&zoom=18&addressdetails=1".format(
-                **geocoordinates)
-        )
-
-        address_text = xmltodict.parse(address.content)['reversegeocode']['addressparts']
-
-        address_coordin = xmltodict.parse(address.content)['reversegeocode']['result']
-
-        return geocoordinates, address_text, address_coordin
+        return geocoordinates
 
     @staticmethod
-    def get_geodata_olx(content, compressed=False):
-        #content = bz2.decompress(content) if compressed else content
+    def get_geodata_olx(content):
 
         data_lat = re.findall("data-lat.{2}[\d]{2}.[\d]{8}.", content.decode("utf-8"))[0]
         data_lat = "".join([i for i in data_lat if i.isdigit() or i == "."])
         data_lon = re.findall("data-lon.{2}[\d]{2}.[\d]{8}.", content.decode("utf-8"))[0]
         data_lon = "".join([i for i in data_lon if i.isdigit() or i == "."])
-
         geocoordinates = {"latitude": data_lat, "longitude": data_lon}
-        address = requests.get(
-            "https://nominatim.openstreetmap.org/reverse?format=xml&lat={latitude}&lon={longitude}&zoom=18&addressdetails=1".format(
-                **geocoordinates)
-        )
 
-        address_text = xmltodict.parse(address.content)['reversegeocode']['addressparts']
-
-        address_coordin = xmltodict.parse(address.content)['reversegeocode']['result']
-
-        return geocoordinates, address_text, address_coordin
+        return geocoordinates
 
     @staticmethod
-    def get_geodata_gratka(content, compressed=False):
-        #content = bz2.decompress(content) if compressed else content
+    def get_geodata_gratka(content):
 
         data_lat = re.findall("szerokosc-geograficzna-y..[\d]{2}\\.[\d]+", content.decode("utf-8"))[0]
         data_lat = "".join([i for i in data_lat if i.isdigit() or i == "."])
         data_lon = re.findall("dlugosc-geograficzna-x..[\d]{2}\\.[\d]+", content.decode("utf-8"))[0]
         data_lon = "".join([i for i in data_lon if i.isdigit() or i == "."])
-
         geocoordinates = {"latitude": data_lat, "longitude": data_lon}
-        address = requests.get(
-            "https://nominatim.openstreetmap.org/reverse?format=xml&lat={latitude}&lon={longitude}&zoom=18&addressdetails=1".format(
-                **geocoordinates)
-        )
 
-        address_text = xmltodict.parse(address.content)['reversegeocode']['addressparts']
+        return geocoordinates
 
-        address_coordin = xmltodict.parse(address.content)['reversegeocode']['result']
+    @staticmethod
+    def get_geocode_openstreet(geocoordinates):
 
-        return geocoordinates, address_text, address_coordin
+        try:
+            address = requests.get(
+                "https://nominatim.openstreetmap.org/reverse?format=xml&lat={latitude}&lon={longitude}&zoom=18&addressdetails=1".format(
+                    **geocoordinates)
+            )
+
+            address_text = xmltodict.parse(address.content)['reversegeocode']['addressparts']
+
+            address_coordin = xmltodict.parse(address.content)['reversegeocode']['result']
+
+            return geocoordinates, address_text, address_coordin
+        except BaseException as e:
+            raise DropItem("Openstreetmap error, " % e)

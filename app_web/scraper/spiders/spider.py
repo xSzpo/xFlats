@@ -29,7 +29,6 @@ class Spider1(scrapy.Spider):
     def parse(self, response):
         for i, offer in enumerate(response.xpath(self.list_page_start_xpath)):
             url = offer.xpath(self.list_page_iter_xpaths['url']).get()
-            logger.info("Otodom {}., url: {}".format(i, url))
             yield scrapy.Request(url, callback=self.parse_dir_contents)
 
         # after you crawl each offer in current page go to the next page
@@ -51,9 +50,7 @@ class Spider1(scrapy.Spider):
         tmp['additional_info'] = "|".join(response.xpath(self.article_page_iter_xpaths['additional_info']).getall())
         tmp['description'] = "\n".join(response.xpath(self.article_page_iter_xpaths['description']).getall())
         tmp['download_date'] = helpers.Scraper.current_datetime()
-
-        tmp['geo_coordinates'], tmp['geo_address_text'], tmp['geo_address_coordin'] = helpers.Geodata.get_geodata_otodom(
-            response.body)
+        tmp['geo_coordinates'] = helpers.Geodata.get_geodata_otodom(response.body)
         tmp['url'] = response.url
         tmp['producer_name'] = self.name
         tmp['main_url'] = self.start_urls[0]
@@ -81,7 +78,6 @@ class Spider2(scrapy.Spider):
 
     def parse(self, response):
         for i, url in enumerate(response.xpath(self.list_page_url).getall()):
-            logger.info("Olx {}., url: {}".format(i, url))
             yield scrapy.Request(url, callback=self.parse_dir_contents)
 
         # after you crawl each offer in current page go to the next page
@@ -102,9 +98,7 @@ class Spider2(scrapy.Spider):
 
         tmp['description'] = "\n".join(response.xpath(self.article_page_iter_xpaths['description']).getall())
         tmp['download_date'] = helpers.Scraper.current_datetime()
-
-        tmp['geo_coordinates'], tmp['geo_address_text'], tmp['geo_address_coordin'] = helpers.Geodata.get_geodata_olx(
-            response.body)
+        tmp['geo_coordinates'] = helpers.Geodata.get_geodata_olx(response.body)
         tmp['url'] = response.url
         tmp['producer_name'] = self.name
         tmp['main_url'] = self.start_urls[0]
@@ -133,7 +127,6 @@ class Spider3(scrapy.Spider):
     def parse(self, response):
 
         for i, url in enumerate(response.xpath(self.list_page_url).getall()):
-            logger.info("Gratka {}., url: {}".format(i, url))
             yield scrapy.Request(url, callback=self.parse_dir_contents)
 
         # after you crawl each offer in current page go to the next page
@@ -156,9 +149,7 @@ class Spider3(scrapy.Spider):
         tmp['location'] = ", ".join(response.xpath(self.article_page_iter_xpaths['location']).getall())
         tmp['description'] = "\n".join(response.xpath(self.article_page_iter_xpaths['description']).getall())
         tmp['download_date'] = helpers.Scraper.current_datetime()
-
-        tmp['geo_coordinates'], tmp['geo_address_text'], tmp['geo_address_coordin'] = helpers.Geodata.get_geodata_gratka(
-            response.body)
+        tmp['geo_coordinates'] = helpers.Geodata.get_geodata_gratka(response.body)
         tmp['url'] = response.url
         tmp['producer_name'] = self.name
         tmp['main_url'] = self.start_urls[0]

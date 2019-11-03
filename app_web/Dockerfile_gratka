@@ -15,7 +15,7 @@ COPY . /app
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
 # set scraper start delay
-ENV SCRAPER_START_DELAY_SEC 30
+ENV SCRAPER_START_DELAY_SEC 50
 
 # run
 CMD ["python", "-u","/app/docker_app_gratka.py"]

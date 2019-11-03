@@ -27,11 +27,13 @@ def scraper(event={}, context={}):
     settings['CONCURRENT_REQUESTS'] = 1
 
     settings['ITEM_PIPELINES'] = {
-        'scraper.pipelines.ProcessItem': 100, #transform data
-        'scraper.pipelines.OutputMongo': 202, #save to mongo
-        'scraper.pipelines.OutputFilter': 301, #filter that are already in db
-        'scraper.pipelines.OutputKafka': 401 #put to kafka
-        }
+        'scraper.pipelines.ProcessItem': 100,
+        'scraper.pipelines.CheckIfExistMongo': 105,
+        'scraper.pipelines.OutputFilter': 110,
+        'scraper.pipelines.ProcessItemGeocode': 115,
+        'scraper.pipelines.OutputMongo': 202,
+        'scraper.pipelines.OutputKafka': 401
+    }
 
     # wait until mongodb is ready
     sleep_time = int(os.environ['SCRAPER_START_DELAY_SEC']) if 'SCRAPER_START_DELAY_SEC' in os.environ.keys() else 30
