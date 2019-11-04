@@ -37,7 +37,7 @@ class Spider1(scrapy.Spider):
 
         if next_page is not None and self.pageCounter < self.settings['CRAWL_LIST_PAGES']:
             if next_page is not None and self.pageCounter >= 1:
-                logger.info("OLX: next page, iter {}, url: {}".format(self.pageCounter, next_page))
+                logger.info("OTODOM: next page, iter {}, url: {}".format(self.pageCounter, next_page))
             self.pageCounter += 1
             yield response.follow(next_page, callback=self.parse)
 
