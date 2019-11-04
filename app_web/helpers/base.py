@@ -22,14 +22,24 @@ logger = logging.getLogger(__name__)
 
 class PoliteLogFormatter(logformatter.LogFormatter):
     def dropped(self, item, exception, response, spider):
-        return {
-            'level': logging.INFO, # lowering the level from logging.WARNING
-            'msg': u"Dropped %s" % item['_id'],
-            'args': {
-                'exception': exception,
-                'item': item,
+        if '_id' in item.keys():
+            return {
+                'level': logging.INFO, # lowering the level from logging.WARNING
+                'msg': u"Dropped item %s" % item['_id'],
+                'args': {
+                    'exception': exception,
+                    'item': item,
+                }
             }
-        }
+        else:
+            return {
+                'level': logging.INFO, # lowering the level from logging.WARNING
+                'msg': u"Dropped item, exception:  %s" %exception,
+                'args': {
+                    'exception': exception,
+                    'item': item,
+                }
+            }
 
 class FilesMongo:
 
@@ -249,7 +259,7 @@ class Scraper:
 
     @staticmethod
     def convert_floor(x):
-        if x.isdigit():
+        if str(x).isdigit():
             return int(x)
         elif x.lower() == 'parter':
             return int(0)
@@ -257,9 +267,9 @@ class Scraper:
             return None
         elif x == '> 10':
             return int(11)
-        elif x.isdigit() and x > 10:
-            return int(11)
         elif x.lower() == 'powyżej 10':
+            return int(11)
+        elif x.lower() == 'powyżej 30':
             return int(11)
         elif x == 'poddasze':
             return None

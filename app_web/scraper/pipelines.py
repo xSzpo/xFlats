@@ -32,6 +32,8 @@ class ProcessItem(object):
             item = self.process_item_olx(item)
         elif item['producer_name'] == 'gratka':
             item = self.process_item_gratka(item)
+        elif item['producer_name'] == 'morizon':
+            item = self.process_item_morizon(item)
         else:
             raise ValueError
         return item
@@ -45,6 +47,7 @@ class ProcessItem(object):
         if not any([i.isdigit() for i in item["price"]]):
             raise DropItem("Missing >>%s<< value" % "price")
 
+        item['download_date'] = helpers.Scraper.current_datetime()
         price_str = ''.join([i for i in re.sub("[ ]", "", item["price"]) if i.isdigit()])
 
         item['tracking_id'] = item['tracking_id'].strip()
@@ -93,6 +96,7 @@ class ProcessItem(object):
         if not any([i.isdigit() for i in item["price"]]):
             raise DropItem("Missing >>%s<< value" % "price")
 
+        item['download_date'] = helpers.Scraper.current_datetime()
         price_str = ''.join([i for i in re.sub("[ ]", "", item["price"]) if i.isdigit()])
 
         item['tracking_id'] = int(np.float32(helpers.Scraper.digits_from_str(item['tracking_id']))) if \
@@ -138,6 +142,7 @@ class ProcessItem(object):
         if not any([i.isdigit() for i in item["price"]]):
             raise DropItem("Missing >>%s<< value" % "price")
 
+        item['download_date'] = helpers.Scraper.current_datetime()
         price_str = ''.join([i for i in re.sub("[ ]", "", item["price"]) if i.isdigit()])
 
         item['tracking_id'] = item['tracking_id'].strip()
@@ -165,13 +170,70 @@ class ProcessItem(object):
         item['building_type'] = item['building_type'].strip() if item['building_type'] is not None else None
         item['year_of_building'] = int(np.float32(item['year_of_building'])) if \
             isinstance(item['year_of_building'], str) else None
+        item['parking'] = item['parking'].strip() if item['parking'] is not None else None
+        item['kitchen'] = item['kitchen'].strip() if item['kitchen'] is not None else None
+        item['condition'] = item['condition'].strip() if item['condition'] is not None else None
+
+        item['condition_electric_wires'] = item['condition_electric_wires'].strip() if item['condition_electric_wires'] is not None else None
+        item['windows'] = item['windows'].strip() if item['windows'] is not None else None
+        item['loudness'] = item['loudness'].strip() if item['loudness'] is not None else None
+        item['bathroom_equip'] = item['bathroom_equip'].strip() if item['bathroom_equip'] is not None else None
+        item['available_from'] = item['available_from'].strip() if item['available_from'] is not None else None
+        item['bathroom'] = item['bathroom'].strip() if item['bathroom'] is not None else None
+        item['additional_space'] = item['additional_space'].strip() if item['additional_space'] is not None else None
+        item['world_direction'] = item['world_direction'].strip() if item['world_direction'] is not None else None
 
         selected_col = ['_id', 'name', 'location', 'flat_size', 'rooms', 'floor', 'price', 'tracking_id',
                    'url', 'producer_name', 'main_url', 'price_m2', 'floor_attic', 'floor_basement', 'building_type',
                    'description', 'number_of_floors', 'building_material', 'year_of_building', 'rent_price',
                    'property_form', 'ref_number', 'comute', 'health_beauty', 'education', 'other', 'url', 'main_url',
                    'tracking_id', 'download_date', 'geo_coordinates', 'ref_number', 'comute', 'health_beauty',
-                   'education','other']
+                   'education', 'other', 'parking', 'kitchen', 'condition', 'condition_electric_wires', 'windows',
+                   'loudness', 'bathroom_equip', 'available_from', 'bathroom', 'additional_space', 'world_direction']
+
+        tmp = {}
+        for key in selected_col:
+            tmp[key] = item[key]
+        return tmp
+
+    def process_item_morizon(self, item):
+
+        for key in ["price", "tracking_id", "name", "location", "flat_size", "description", "producer_name"]:
+            if item[key] == "" or item[key] is None:
+                raise DropItem("Missing >>%s<< value" % key)
+
+        if not any([i.isdigit() for i in item["price"]]):
+            raise DropItem("Missing >>%s<< value" % "price")
+
+        item['download_date'] = helpers.Scraper.current_datetime()
+        price_str = ''.join([i for i in re.sub("[ ]", "", item["price"]) if i.isdigit()])
+        item['tracking_id'] = item['tracking_id'].strip()
+        item['_id'] = "mor_"+str(item["tracking_id"]) + "_" + price_str
+        item['_id'] = item['_id'].strip()
+        item['flat_size'] = int(np.float32(helpers.Scraper.digits_from_str(item['flat_size']))) if \
+            item['flat_size'] is not None else None
+        item['flat_living_size'] = int(np.float32(helpers.Scraper.digits_from_str(item['flat_living_size']))) if \
+            item['flat_living_size'] is not None else None
+        item['price'] = int(np.float32(helpers.Scraper.digits_from_str(item['price']))) if \
+                                                                                item['price'] is not None else None
+        item['price_m2'] = helpers.Scraper.digits_from_str(item['price_m2']) if item['price_m2'] is not None else None
+        item['rooms'] = int(helpers.Scraper.digits_from_str(item['rooms'])) if item['rooms'] is not None else None
+        item['floor'] = re.findall("\d+", item['floor'])[0] if item['floor'] is not None else None
+        item['floor'] = helpers.Scraper.convert_floor(item['floor']) if \
+            isinstance(item['floor'], str) else None
+        item['number_of_floors'] = int(np.float32(item['number_of_floors'])) if \
+            isinstance(item['number_of_floors'], str) else None
+        item['year_of_building'] = int(np.float32(item['year_of_building'])) if \
+            isinstance(item['year_of_building'], str) else None
+        item['tracking_id'] = int(helpers.Scraper.digits_from_str(item['tracking_id'])) if \
+            item['tracking_id'] is not None else None
+
+        selected_col = ['_id', 'name', 'location', 'flat_size', 'rooms', 'floor', 'price', 'tracking_id', 'url',
+                        'producer_name', 'main_url', 'price_m2', 'market', 'number_of_floors',
+                        'building_type', 'building_material', 'year_of_building', 'property_form',
+                        'description', 'url', 'main_url','tracking_id', 'download_date','geo_coordinates',
+                        'heating_type','other', "kitchen", "condition", "bathroom_number", "terrace", "terrece_size",
+                        "for_office", "offer_number", "flat_living_size", "flat_height", "offer_updated", "offer_added"]
 
         tmp = {}
         for key in selected_col:
@@ -183,17 +245,6 @@ class ProcessItemGeocode(object):
 
     def process_item(self, item, spider):
         _ = spider
-        if item['producer_name'] == 'otodom':
-            item = self.process_item_ototdom(item)
-        elif item['producer_name'] == 'olx':
-            item = self.process_item_olx(item)
-        elif item['producer_name'] == 'gratka':
-            item = self.process_item_gratka(item)
-        else:
-            raise ValueError
-        return item
-
-    def process_item_ototdom(self, item):
 
         item['geo_coordinates'], item['geo_address_text'], item['geo_address_coordin'] = \
             helpers.Geodata.get_geocode_openstreet(item['geo_coordinates'])
@@ -207,7 +258,6 @@ class ProcessItemGeocode(object):
             'geo_address_text'] else None
         item['GC_addr_suburb'] = item['geo_address_text']['suburb'] if 'suburb' in item['geo_address_text'] else None
         item['GC_addr_city'] = item['geo_address_text']['city'] if 'city' in item['geo_address_text'] else None
-        item['GC_addr_county'] = item['geo_address_text']['county'] if 'country' in item['geo_address_text'] else None
         item['GC_addr_state'] = item['geo_address_text']['state'] if 'state' in item['geo_address_text'] else None
         item['GC_addr_postcode'] = item['geo_address_text']['postcode'] if 'postcode' in item[
             'geo_address_text'] else None
@@ -219,65 +269,10 @@ class ProcessItemGeocode(object):
         _ = item.pop('geo_address_text')
 
         return item
-
-    def process_item_olx(self, item):
-
-        item['geo_coordinates'], item['geo_address_text'], item['geo_address_coordin'] = \
-            helpers.Geodata.get_geocode_openstreet(item['geo_coordinates'])
-        item['GC_latitude'] = float(item['geo_coordinates']['latitude'])
-        item['GC_longitude'] = float(item['geo_coordinates']['longitude'])
-        item['GC_boundingbox'] = item['geo_address_coordin']['@boundingbox']
-        item['GC_addr_house_number'] = item['geo_address_text']['house_number'] if 'house_number' in item[
-            'geo_address_text'] else None
-        item['GC_addr_road'] = item['geo_address_text']['road'] if 'road' in item['geo_address_text'] else None
-        item['GC_addr_neighbourhood'] = item['geo_address_text']['neighbourhood'] if 'neighbourhood' in item[
-            'geo_address_text'] else None
-        item['GC_addr_suburb'] = item['geo_address_text']['suburb'] if 'suburb' in item['geo_address_text'] else None
-        item['GC_addr_city'] = item['geo_address_text']['city'] if 'city' in item['geo_address_text'] else None
-        item['GC_addr_county'] = item['geo_address_text']['county'] if 'country' in item['geo_address_text'] else None
-        item['GC_addr_state'] = item['geo_address_text']['state'] if 'state' in item['geo_address_text'] else None
-        item['GC_addr_postcode'] = item['geo_address_text']['postcode'] if 'postcode' in item[
-            'geo_address_text'] else None
-        item['GC_addr_country'] = item['geo_address_text']['country'] if 'country' in item['geo_address_text'] else None
-        item['GC_addr_country_code'] = item['geo_address_text']['country_code'] if 'country_code' in item[
-            'geo_address_text'] else None
-        _ = item.pop('geo_coordinates')
-        _ = item.pop('geo_address_coordin')
-        _ = item.pop('geo_address_text')
-
-        return item
-
-    def process_item_gratka(self, item):
-
-        item['geo_coordinates'], item['geo_address_text'], item['geo_address_coordin'] = \
-            helpers.Geodata.get_geocode_openstreet(item['geo_coordinates'])
-        item['GC_latitude'] = float(item['geo_coordinates']['latitude'])
-        item['GC_longitude'] = float(item['geo_coordinates']['longitude'])
-        item['GC_boundingbox'] = item['geo_address_coordin']['@boundingbox']
-        item['GC_addr_house_number'] = item['geo_address_text']['house_number'] if 'house_number' in item[
-            'geo_address_text'] else None
-        item['GC_addr_road'] = item['geo_address_text']['road'] if 'road' in item['geo_address_text'] else None
-        item['GC_addr_neighbourhood'] = item['geo_address_text']['neighbourhood'] if 'neighbourhood' in item[
-            'geo_address_text'] else None
-        item['GC_addr_suburb'] = item['geo_address_text']['suburb'] if 'suburb' in item['geo_address_text'] else None
-        item['GC_addr_city'] = item['geo_address_text']['city'] if 'city' in item['geo_address_text'] else None
-        item['GC_addr_county'] = item['geo_address_text']['county'] if 'country' in item['geo_address_text'] else None
-        item['GC_addr_state'] = item['geo_address_text']['state'] if 'state' in item['geo_address_text'] else None
-        item['GC_addr_postcode'] = item['geo_address_text']['postcode'] if 'postcode' in item[
-            'geo_address_text'] else None
-        item['GC_addr_country'] = item['geo_address_text']['country'] if 'country' in item['geo_address_text'] else None
-        item['GC_addr_country_code'] = item['geo_address_text']['country_code'] if 'country_code' in item[
-            'geo_address_text'] else None
-        _ = item.pop('geo_coordinates')
-        _ = item.pop('geo_address_coordin')
-        _ = item.pop('geo_address_text')
-
-        return item
-
 
 class OutputLocal:
 
-    def __init__(self, encoding, file_path,**kwargs):
+    def __init__(self, encoding, file_path, **kwargs):
         self.encoding = encoding
         self.file_path = file_path
         self.file = None
@@ -377,12 +372,8 @@ class OutputMongo(object):
         _ = spider
 
         try:
-            if not self.db[item['producer_name']].find_one({'_id': item[self.id_field]}, {'_id': 1}):
-                w = self.db[item['producer_name']].insert_one(item)
-                logger.info("MongoDB: save offer {}, {}".format(item[self.id_field], w))
-            else:
-                logger.info("MongoDB: don't save offer {}, already there".format(item[self.id_field]))
-                item["found"] = True
+            w = self.db[item['producer_name']].insert_one(item)
+            logger.info("MongoDB: save offer {}, {}".format(item[self.id_field], w))
         except (ConnectionFailure, ServerSelectionTimeoutError) as e:
             logger.error("pymongo.errors, Could not connect to server: %s" % e)
         except DuplicateKeyError as e:

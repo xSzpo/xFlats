@@ -1,16 +1,32 @@
 use OFFERS
+
+
 db.otodom.createIndex({"download_date": 1})
 db.olx.createIndex({"download_date": 1})
+db.gratka.createIndex({"download_date": 1})
 
-
-db.olx.find({"_id":"olx_506908384_417000"})
 
 db.otodom.find({}).count()
 db.olx.find({}).count()
+db.gratka.find({}).count()
+db.morizon.find({}).count()
+
+
+db.otodom.find({})
+db.olx.find({})
+db.gratka.find({})
+db.morizon.find({})
 
 db.otodom.find({}).sort({"download_date":-1}).limit(10)
 db.olx.find({}).sort({"download_date":-1}).limit(10)
+db.gratka.find({}).sort({"download_date":-1}).limit(10)
+db.morizon.find({}).sort({"download_date":-1}).limit(10)
 
+
+
+db.olx.find({"_id":"olx_506908384_417000"})
+db.otodom.find({}).sort({"download_date":-1}).limit(10)
+db.olx.find({}).sort({"download_date":-1}).limit(10)
 
 db.Otodom.find({"download_date" : {"$gt": ISODate("2019-10-01 20:16:00.248Z") }}).sort({"download_date":-1}).limit(10)
 db.Otodom.find({})
