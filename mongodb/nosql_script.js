@@ -4,6 +4,7 @@ use OFFERS
 db.otodom.createIndex({"download_date": 1})
 db.olx.createIndex({"download_date": 1})
 db.gratka.createIndex({"download_date": 1})
+db.morizon.createIndex({"download_date": 1})
 
 
 db.otodom.find({}).count()
