@@ -79,3 +79,11 @@ mongodb/db/*
 !mongodb/db/.gitkeep
 nify/conf/archive/*
 !nify/conf/archive/.gitkeep
+
+#key
+*.pem
+EC2/*.pem
+*.key
+
+#temp files
+_tmp*
