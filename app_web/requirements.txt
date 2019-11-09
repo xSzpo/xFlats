@@ -8,5 +8,6 @@ numpy==1.15.4
 botocore
 xmltodict
 Scrapy
+Scrapy-UserAgents
 twisted
 kafka-python

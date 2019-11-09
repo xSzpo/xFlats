@@ -35,9 +35,11 @@ class Spider1(scrapy.Spider):
         # after you crawl each offer in current page go to the next page
         next_page = response.css(self.next_page_css).get()
 
-        if next_page is not None and self.pageCounter < self.settings['CRAWL_LIST_PAGES']:
+        if next_page is not None and self.pageCounter < \
+                self.settings['CRAWL_LIST_PAGES']:
             if next_page is not None and self.pageCounter >= 1:
-                logger.info("OTODOM: next page, iter {}, url: {}".format(self.pageCounter, next_page))
+                logger.info("OTODOM: next page, iter {}, url: {}".format(
+                    self.pageCounter, next_page))
             self.pageCounter += 1
             yield response.follow(next_page, callback=self.parse)
 
@@ -48,9 +50,12 @@ class Spider1(scrapy.Spider):
         for key in self.article_page_iter_xpaths:
             tmp[key] = response.xpath(self.article_page_iter_xpaths[key]).get()
 
-        tmp['additional_info'] = "|".join(response.xpath(self.article_page_iter_xpaths['additional_info']).getall())
-        tmp['description'] = "\n".join(response.xpath(self.article_page_iter_xpaths['description']).getall())
-        tmp['geo_coordinates'] = helpers.Geodata.get_geodata_otodom(response.body)
+        tmp['additional_info'] = "|".join(response.xpath(
+            self.article_page_iter_xpaths['additional_info']).getall())
+        tmp['description'] = "\n".join(response.xpath(
+            self.article_page_iter_xpaths['description']).getall())
+        tmp['geo_coordinates'] = helpers.Geodata.get_geodata_otodom(
+                                                                response.body)
         tmp['url'] = response.url
         tmp['producer_name'] = self.name
         tmp['main_url'] = self.start_urls[0]
@@ -84,9 +89,11 @@ class Spider2(scrapy.Spider):
         # after you crawl each offer in current page go to the next page
         next_page = response.css(self.next_page_css).get()
 
-        if next_page is not None and self.pageCounter < self.settings['CRAWL_LIST_PAGES']  and self.pageCounter <= 300:
+        if next_page is not None and self.pageCounter < \
+                self.settings['CRAWL_LIST_PAGES']  and self.pageCounter <= 300:
             if next_page is not None and self.pageCounter >= 1:
-                logger.info("OLX: next page, iter {}, url: {}".format(self.pageCounter, next_page))
+                logger.info("OLX: next page, iter {}, url: {}".format(
+                    self.pageCounter, next_page))
             self.pageCounter += 1
             yield response.follow(next_page, callback=self.parse)
 
@@ -97,7 +104,8 @@ class Spider2(scrapy.Spider):
         for key in self.article_page_iter_xpaths:
             tmp[key] = response.xpath(self.article_page_iter_xpaths[key]).get()
 
-        tmp['description'] = "\n".join(response.xpath(self.article_page_iter_xpaths['description']).getall())
+        tmp['description'] = "\n".join(response.xpath(
+            self.article_page_iter_xpaths['description']).getall())
         tmp['geo_coordinates'] = helpers.Geodata.get_geodata_olx(response.body)
         tmp['url'] = response.url
         tmp['producer_name'] = self.name
@@ -130,11 +138,14 @@ class Spider3(scrapy.Spider):
             yield scrapy.Request(url, callback=self.parse_dir_contents)
 
         # after you crawl each offer in current page go to the next page
-        next_page = response.url.split("?")[0]+"?page={}".format(self.pageCounter+1)
+        next_page = response.url.split("?")[0] + \
+            "?page={}".format(self.pageCounter+1)
 
-        if next_page is not None and self.pageCounter < self.settings['CRAWL_LIST_PAGES']:
+        if next_page is not None and self.pageCounter < \
+                self.settings['CRAWL_LIST_PAGES']:
             if next_page is not None and self.pageCounter >= 1:
-                logger.info("GRATKA: next page, iter {}, url: {}".format(self.pageCounter, next_page))
+                logger.info("GRATKA: next page, iter {}, url: {}".format(
+                    self.pageCounter, next_page))
             self.pageCounter += 1
             yield response.follow(next_page, callback=self.parse)
 
@@ -146,9 +157,12 @@ class Spider3(scrapy.Spider):
             tmp[key] = response.xpath(self.article_page_iter_xpaths[key]).get()
 
         tmp['tracking_id'] = re.findall(r"\d+", response.url.split("/")[-1])[0]
-        tmp['location'] = ", ".join(response.xpath(self.article_page_iter_xpaths['location']).getall())
-        tmp['description'] = "\n".join(response.xpath(self.article_page_iter_xpaths['description']).getall())
-        tmp['geo_coordinates'] = helpers.Geodata.get_geodata_gratka(response.body)
+        tmp['location'] = ", ".join(response.xpath(
+            self.article_page_iter_xpaths['location']).getall())
+        tmp['description'] = "\n".join(response.xpath(
+            self.article_page_iter_xpaths['description']).getall())
+        tmp['geo_coordinates'] = helpers.Geodata.get_geodata_gratka(
+                                                                response.body)
         tmp['url'] = response.url
         tmp['producer_name'] = self.name
         tmp['main_url'] = self.start_urls[0]
@@ -183,9 +197,11 @@ class Spider4(scrapy.Spider):
         # after you crawl each offer in current page go to the next page
         next_page = response.xpath(self.next_page).get()
 
-        if next_page is not None and self.pageCounter < self.settings['CRAWL_LIST_PAGES']:
+        if next_page is not None and self.pageCounter < \
+                self.settings['CRAWL_LIST_PAGES']:
             if next_page is not None and self.pageCounter >= 1:
-                logger.info("MORIZON: next page, iter {}, url: {}".format(self.pageCounter, next_page))
+                logger.info("MORIZON: next page, iter {}, url: {}".format(
+                    self.pageCounter, next_page))
             self.pageCounter += 1
             yield response.follow(next_page, callback=self.parse)
 
@@ -196,13 +212,19 @@ class Spider4(scrapy.Spider):
         for key in self.article_page_iter_xpaths:
             tmp[key] = response.xpath(self.article_page_iter_xpaths[key]).get()
 
-        tmp['name'] = " ".join(response.xpath(self.article_page_iter_xpaths['name']).getall())
-        tmp['location'] = " ".join(response.xpath(self.article_page_iter_xpaths['location']).getall())
-        tmp['geo_coordinates'] = {"latitude": tmp['data_lat'], "longitude": tmp['data_lon']}
+        tmp['name'] = " ".join(response.xpath(
+            self.article_page_iter_xpaths['name']).getall())
+        tmp['location'] = " ".join(response.xpath(
+            self.article_page_iter_xpaths['location']).getall())
+        tmp['geo_coordinates'] = {
+            "latitude": tmp['data_lat'], "longitude": tmp['data_lon']}
         tmp['tracking_id'] = re.findall(r"\d+", response.url.split("-")[-1])[0]
-        tmp['description'] = "\n".join(response.xpath(self.article_page_iter_xpaths['description']).getall())
-        tmp['heating_type'] = " ".join(response.xpath(self.article_page_iter_xpaths['heating_type']).getall())
-        tmp['other'] = " ".join(response.xpath(self.article_page_iter_xpaths['other']).getall())
+        tmp['description'] = "\n".join(response.xpath(
+            self.article_page_iter_xpaths['description']).getall())
+        tmp['heating_type'] = " ".join(response.xpath(
+            self.article_page_iter_xpaths['heating_type']).getall())
+        tmp['other'] = " ".join(response.xpath(
+            self.article_page_iter_xpaths['other']).getall())
         tmp['url'] = response.url
         tmp['producer_name'] = self.name
         tmp['main_url'] = self.start_urls[0]
