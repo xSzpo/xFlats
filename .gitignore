@@ -79,6 +79,7 @@ mongodb/db/*
 !mongodb/db/.gitkeep
 nify/conf/archive/*
 !nify/conf/archive/.gitkeep
+*.feather
 
 #key
 *.pem
