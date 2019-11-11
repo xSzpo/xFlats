@@ -1,181 +1,8 @@
-from sklearn.base import BaseEstimator, TransformerMixin
+import unidecode
 import re
 import pandas as pd
-import numpy as np
+from sklearn.base import BaseEstimator, TransformerMixin
 import unicodedata
-import unidecode
-
-
-class PrepareData(BaseEstimator, TransformerMixin):
-
-    def __init__(self, unicode_text=True, **kwargs):
-        self.unicode_text = unicode_text
-
-    flds_id = ['_id']
-    flds_target = ['price']
-    flds_num = ['flat_size', 'rooms', 'floor', 'number_of_floors',
-                'year_of_building']
-    flds_num_geo = ['GC_latitude', 'GC_longitude']
-    flds_cat = ['producer_name']
-    flds_cat_geo = ['GC_addr_road', 'GC_addr_neighbourhood', 'GC_addr_suburb',
-                    'GC_addr_city', 'GC_addr_state', 'GC_addr_postcode',
-                    'GC_addr_country']
-    flds_text = ['description', 'name']
-    drop = ['location']
-    download_date = ['download_date']
-    new_fields = ['info']
-    all_fields = flds_id + flds_target + flds_num + flds_num_geo + flds_cat +\
-        flds_cat_geo + flds_text + download_date + new_fields
-
-    def clean_str(self, value):
-        """Remove white spaces
-
-        :param value: string to clean
-        :type value: str
-        :return: cleaned string or other object - with no transformation
-        :rtype: str
-        """
-        if type(value) == str:
-            pattern = re.compile(r'\s+')
-            return re.sub(pattern, ' ', value).strip()
-        else:
-            return value
-
-    def normalize_text(self, txt):
-        if txt is not None:
-            return unicodedata.normalize('NFKD', txt.replace(u"ł", "l")).encode(
-                'ASCII', 'ignore').decode('ASCII')
-        else:
-            return ""
-
-    def insert_field_if_not_exist(self, dict_, field):
-        """Check if dictionary contains specific field and insert
-        None value if not.
-
-        :param dict_: dictionary with offer data - one record
-        :type dict_: dict
-        :param field: name of the field to check
-        :type field: str
-        :return: input dictionar with new field if inserted
-        :rtype: dict
-        """
-        if field not in dict_.keys():
-            dict_[field] = None
-        return dict_[field]
-
-    def add_text_field_2_descr(self, dict_, txt_field,
-                               desc_field='description'):
-        """Add text from selected field to offer description text
-
-        :param dict_: dictionary with offer data - one record
-        :type dict_: dict
-        :param txt_field: name of the field to add to description text
-        :type txt_field: str
-        :param desc_field: name of the field with description text, defaults
-                           to 'description'
-        :type desc_field: str, optional
-        :return: dictionary with offer data - one record + new description
-        :rtype: dict
-        """
-        if txt_field in dict_.keys():
-            if dict_[txt_field] is not None and type(dict_[txt_field]) != list:
-                return dict_[desc_field]+" "+txt_field+" "+dict_[txt_field]
-            if dict_[txt_field] is not None and type(dict_[txt_field]) == list:
-                return dict_[desc_field]+" "+txt_field+" "+" ".join(
-                    dict_[txt_field])
-            else:
-                return dict_[desc_field]
-        else:
-            return dict_[desc_field]
-
-    def clean_data(self, data):
-        """Clean and unify data from many websites.
-        * adds text from selected fields to offer description text,
-        * insert fields with empty values if not exists in dictionary,
-        * insert 'no_value' to name field if is None,
-
-        :param data: dictionary with offers data
-        :type data: dict
-        :return: dictionary with offfer data after cleaning and transformations
-        :rtype: dict
-        """
-
-        list_ = []
-
-        if type(data) == dict:
-            data_ = [data.copy()]
-        elif type(data) == list:
-            data_ = data.copy()
-        else:
-            data_ = None
-
-        for rec in data_:
-            tmp_ = {}
-
-            for i in rec.keys():
-                tmp_[i] = self.clean_str(rec[i])
-
-            if tmp_['name'] is None:
-                tmp_['name'] = 'no_value'
-
-            tmp_['info'] = ""
-
-            for key in ['additional_info',
-                        'building_type',
-                        'building_material',
-                        'property_form',
-                        'market',
-                        'widows_type',
-                        'heating_type',
-                        'finishing_stage',
-                        'property_form',
-                        'comute',
-                        'health_beauty',
-                        'education',
-                        'other',
-                        'parking',
-                        'kitchen',
-                        'umeblowane',
-                        'condition',
-                        'condition_electric_wires',
-                        'windows',
-                        'loudness',
-                        'bathroom_equip',
-                        'bathroom',
-                        'bathroom_number',
-                        'additional_space',
-                        'world_direction',
-                        'terrace',
-                        'for_office']:
-                tmp_['info'] = self.add_text_field_2_descr(
-                    tmp_, key,  'info')
-
-            tmp_['info'] = self.clean_str(tmp_['info'])
-
-            for key in ['year_of_building', 'number_of_floors',
-                        'terrece_size', ' flat_height']:
-                tmp_[key] = self.insert_field_if_not_exist(tmp_, key)
-
-            if self.unicode_text:
-                tmp_['description'] = self.normalize_text(tmp_['description'])
-                tmp_['info'] = self.normalize_text(tmp_['info'])
-
-            list_ += [tmp_]
-
-        return list_
-
-    def get_feature_names(self):
-        return self.feature_names
-
-    def fit(self, x, y=None):
-        tmp = self.transform(x[:100] if len(x) > 100 else x)
-        self.feature_names = list(tmp.columns)
-        return self
-
-    def transform(self, x):
-        tmp = self.clean_data(x)
-        tmp = pd.DataFrame(tmp)[self.all_fields]
-        return tmp
 
 
 class PassThroughOrReplace(BaseEstimator, TransformerMixin):
@@ -255,13 +82,11 @@ class PassThroughOrReplace(BaseEstimator, TransformerMixin):
                 #new_x.replace({'': np.nan}, inplace=True)
                 new_x.fillna('novalue', inplace=True)
 
-            if len(self.f_numeric) > 0 and type(new_x) == \
-                    pd.core.frame.DataFrame:
+            if len(self.f_numeric) > 0 and type(new_x) == pd.core.frame.DataFrame:
                 for col in self.f_numeric:
                     new_x[col] = new_x[col].fillna(self.means[col]["mean"])
 
-            if len(self.f_numeric) > 0 and type(new_x) == \
-                    pd.core.series.Series:
+            if len(self.f_numeric) > 0 and type(new_x) == pd.core.series.Series:
                 new_x = new_x.fillna(self.means[x.name]["mean"]).to_frame()
 
         return new_x
@@ -292,8 +117,7 @@ class transformColList(BaseEstimator, TransformerMixin):
             for col in self.columns:
                 if type(x[col][0]) == list:
                     self.cor_values[col] = set(
-                        [(item, col + "_" + self.__correct_names(item)) for
-                            sublist in x[col].values for item in sublist
+                        [(item, col + "_" + self.__correct_names(item)) for sublist in x[col].values for item in sublist
                          if item != ''])
                     self.columnNames += [i[1] for i in self.cor_values[col]]
                 else:
