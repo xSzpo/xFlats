@@ -8,13 +8,13 @@ import unidecode
 
 class PrepareData(BaseEstimator, TransformerMixin):
 
-    def __init__(self, unicode_text=True, **kwargs):
+    def __init__(self, unicode_text=False, **kwargs):
         self.unicode_text = unicode_text
 
     flds_id = ['_id']
     flds_target = ['price']
     flds_num = ['flat_size', 'rooms', 'floor', 'number_of_floors',
-                'year_of_building']
+                'year_of_building', 'price_m2']
     flds_num_geo = ['GC_latitude', 'GC_longitude']
     flds_cat = ['producer_name']
     flds_cat_geo = ['GC_addr_road', 'GC_addr_neighbourhood', 'GC_addr_suburb',
