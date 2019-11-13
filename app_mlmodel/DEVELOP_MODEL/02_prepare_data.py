@@ -152,10 +152,21 @@ with codecs.open("app_mlmodel/DEVELOP_MODEL/stopwords_uni.txt", "w") as file:
 
 
 # %%
+
+#from stempel import StempelStemmer
+#stemmer = StempelStemmer.default()
+#stem = stemmer.stem
+#prep_dat = helpers.PrepareData(stemmer=stem)
+
+# %%
+
+# %%
 prep_dat = helpers.PrepareData()
 pd_sample_train = prep_dat.fit_transform(sample_train)
 pd_sample_test = prep_dat.transform(sample_test)
 pd_sample_oot = prep_dat.transform(sample_oot)
+
+# %%
 
 feather.write_dataframe(pd_sample_train,
                         "app_mlmodel/DEVELOP_MODEL/data/df_train.feather")

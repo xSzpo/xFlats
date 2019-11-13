@@ -8,8 +8,11 @@ import unidecode
 
 class PrepareData(BaseEstimator, TransformerMixin):
 
-    def __init__(self, unicode_text=False, **kwargs):
-        self.unicode_text = unicode_text
+    def __init__(self, stemmer=None, extraxt_year=True, **kwargs):
+
+        self.stemmer = stemmer
+        self.extraxt_year = extraxt_year
+        self.unicode_text = False
 
     flds_id = ['_id']
     flds_target = ['price']
@@ -45,6 +48,45 @@ class PrepareData(BaseEstimator, TransformerMixin):
         if txt is not None:
             return unicodedata.normalize('NFKD', txt.replace(u"ł", "l")).encode(
                 'ASCII', 'ignore').decode('ASCII')
+        else:
+            return ""
+
+    def extraxt_year(self, txt):
+        """extraxt year from text
+        Any extracted date is assumed to be a year of building
+
+        :param txt: text with offer description
+        :type txt: str
+        :return: year
+        :rtype: np.int
+        """
+        pattern = re.compile(r'[2][0][\d]{2} +|[1][89][\d]{2} +')
+        wynik = re.findall(pattern, txt)
+        if wynik is None:
+            return None
+        elif len(wynik) == 1:
+            return np.int32(wynik[0])
+        elif len(wynik) > 1:
+            return np.int32(min(wynik))
+        else:
+            return None
+
+    def clean_description(self, txt):
+        """clean description text
+        Removes solo digits and special signs.
+        If self.stemmer is provided, stemm the text
+
+        :param txt: [description]
+        :type txt: [type]
+        :return: [description]
+        :rtype: [type]
+        """
+        if len(txt) > 0:
+            tmp = re.findall(r'(?=\D)\w+', txt)
+            if self.stemmer:
+                tmp = [self.stemmer(i.lower()) for i in tmp]
+            tmp = " ".join([i for i in tmp if i is not None])
+            return tmp
         else:
             return ""
 
@@ -156,6 +198,14 @@ class PrepareData(BaseEstimator, TransformerMixin):
                         'terrece_size', ' flat_height']:
                 tmp_[key] = self.insert_field_if_not_exist(tmp_, key)
 
+            if self.extraxt_year:
+                tmp_['year_of_building'] = self.extraxt_year(
+                    tmp_['description']) if \
+                    tmp_['year_of_building'] != tmp_['year_of_building'] \
+                    else tmp_['year_of_building']
+
+            tmp_['description'] = self.clean_description(tmp_['description'])
+
             if self.unicode_text:
                 tmp_['description'] = self.normalize_text(tmp_['description'])
                 tmp_['info'] = self.normalize_text(tmp_['info'])
@@ -202,7 +252,7 @@ class PassThroughOrReplace(BaseEstimator, TransformerMixin):
             self.f_numeric = list(new_x.select_dtypes(
                 exclude=['object']).columns)
             self.f_date = list(new_x.select_dtypes(
-                    include=['datetime64[ns]']).columns)
+                include=['datetime64[ns]']).columns)
 
         if type(new_x) == pd.core.series.Series:
 
@@ -224,12 +274,12 @@ class PassThroughOrReplace(BaseEstimator, TransformerMixin):
             self.columnNames = new_x.columns
             self.means = pd.DataFrame.from_dict(
                 {"column": new_x[self.f_numeric].mean().index,
-                "mean": new_x[self.f_numeric].mean()}).to_dict(orient='index')
+                 "mean": new_x[self.f_numeric].mean()}).to_dict(orient='index')
 
         if type(new_x) == pd.core.series.Series:
             self.columnNames = [new_x.name]
             self.means = {new_x.name: {"column": new_x.name,
-                                        "mean": new_x.mean()}}
+                                       "mean": new_x.mean()}}
 
         return self
 
