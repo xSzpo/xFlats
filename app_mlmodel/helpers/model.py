@@ -28,9 +28,8 @@ class PrepareData(BaseEstimator, TransformerMixin):
     flds_text = ['description', 'name']
     drop = ['location']
     download_date = ['download_date']
-    new_fields = ['info']
     all_fields = flds_id + flds_target + flds_num + flds_num_geo + flds_cat +\
-        flds_cat_geo + flds_text + download_date + new_fields
+        flds_cat_geo + flds_text + download_date
 
     def clean_str(self, value):
         """Remove white spaces
@@ -48,8 +47,8 @@ class PrepareData(BaseEstimator, TransformerMixin):
 
     def normalize_text(self, txt):
         if txt is not None:
-            return unicodedata.normalize('NFKD', txt.replace(u"ł", "l")).encode(
-                'ASCII', 'ignore').decode('ASCII')
+            return unicodedata.normalize('NFKD', txt.replace(u"ł", "l")
+            ).encode('ASCII', 'ignore').decode('ASCII')
         else:
             return ""
 
@@ -162,7 +161,7 @@ class PrepareData(BaseEstimator, TransformerMixin):
             if tmp_['name'] is None:
                 tmp_['name'] = 'no_value'
 
-            tmp_['info'] = ""
+            tmp_['description'] = tmp_['description'] +" PASTA: "
 
             for key in ['additional_info',
                         'building_type',
@@ -194,8 +193,6 @@ class PrepareData(BaseEstimator, TransformerMixin):
                 tmp_['description'] = self.add_text_field_2_descr(
                     tmp_, key,  'description')
 
-            #tmp_['info'] = self.clean_str(tmp_['info'])
-
             for key in ['year_of_building', 'number_of_floors',
                         'terrece_size', ' flat_height']:
                 tmp_[key] = self.insert_field_if_not_exist(tmp_, key)
@@ -212,7 +209,6 @@ class PrepareData(BaseEstimator, TransformerMixin):
 
             if self.unicode_text:
                 tmp_['description'] = self.normalize_text(tmp_['description'])
-                #tmp_['info'] = self.normalize_text(tmp_['info'])
 
             list_ += [tmp_]
 
