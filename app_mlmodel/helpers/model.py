@@ -8,11 +8,13 @@ import unidecode
 
 class PrepareData(BaseEstimator, TransformerMixin):
 
-    def __init__(self, stemmer=None, extraxt_year=True, **kwargs):
+    def __init__(self, stemmer=None, clean_descr=False, extraxt_year=False,
+                 unicode_text=False, **kwargs):
 
         self.stemmer = stemmer
+        self.clean_descr = clean_descr
         self.extraxt_year = extraxt_year
-        self.unicode_text = False
+        self.unicode_text = unicode_text
 
     flds_id = ['_id']
     flds_target = ['price']
@@ -189,10 +191,10 @@ class PrepareData(BaseEstimator, TransformerMixin):
                         'world_direction',
                         'terrace',
                         'for_office']:
-                tmp_['info'] = self.add_text_field_2_descr(
-                    tmp_, key,  'info')
+                tmp_['description'] = self.add_text_field_2_descr(
+                    tmp_, key,  'description')
 
-            tmp_['info'] = self.clean_str(tmp_['info'])
+            #tmp_['info'] = self.clean_str(tmp_['info'])
 
             for key in ['year_of_building', 'number_of_floors',
                         'terrece_size', ' flat_height']:
@@ -204,11 +206,13 @@ class PrepareData(BaseEstimator, TransformerMixin):
                     tmp_['year_of_building'] != tmp_['year_of_building'] \
                     else tmp_['year_of_building']
 
-            tmp_['description'] = self.clean_description(tmp_['description'])
+            if self.clean_descr:
+                tmp_['description'] = self.clean_description(
+                                                    tmp_['description'])
 
             if self.unicode_text:
                 tmp_['description'] = self.normalize_text(tmp_['description'])
-                tmp_['info'] = self.normalize_text(tmp_['info'])
+                #tmp_['info'] = self.normalize_text(tmp_['info'])
 
             list_ += [tmp_]
 
@@ -340,7 +344,7 @@ class transformColList(BaseEstimator, TransformerMixin):
             self.columnNames = []
             # df
             for col in self.columns:
-                if type(x[col][0]) == list:
+                if type(x[col].to_list()[0]) == list:
                     self.cor_values[col] = set(
                         [(item, col + "_" + self.__correct_names(item)) for
                             sublist in x[col].values for item in sublist
@@ -384,7 +388,7 @@ class transformColList(BaseEstimator, TransformerMixin):
         if type(x) == pd.core.frame.DataFrame:
             # df
             for col in self.columns:
-                if type(x[col][0]) == list:
+                if type(x[col].to_list()[0]) == list:
 
                     _dict = {}
 
