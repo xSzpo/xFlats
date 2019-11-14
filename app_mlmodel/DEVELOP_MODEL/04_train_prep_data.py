@@ -61,7 +61,7 @@ def main():
 
         logger.debug("data divided to samples")
 
-        prep_dat = helpers.PrepareData(unicode_text=True)
+        prep_dat = helpers.PrepareData(extraxt_year=True, unicode_text=True)
         pd_sample_train = prep_dat.fit_transform(sample_train)
         pd_sample_test = prep_dat.transform(sample_test)
         pd_sample_oot = prep_dat.transform(sample_oot)
