@@ -4,7 +4,6 @@ use OFFERS
 db.otodom.createIndex({"download_date": 1})
 db.olx.createIndex({"download_date": 1})
 db.gratka.createIndex({"download_date": 1})
-db.morizon.createIndex({"download_date": 1})
 
 
 db.otodom.find({}).count()
@@ -19,15 +18,6 @@ db.gratka.find({})
 db.morizon.find({})
 
 db.otodom.find({}).sort({"download_date":-1}).limit(10)
-db.olx.find({}).sort({"download_date":-1}).limit(10)
-db.gratka.find({}).sort({"download_date":-1}).limit(10)
-db.morizon.find({}).sort({"download_date":-1}).limit(10)
-
-db.otodom.find({"price": {"$gt":10000000}}).sort({"price":-1}).limit(10)
-db.olx.find({"price": {"$gt":10000000}}).sort({"price":-1}).limit(10)
-db.gratka.find({"price": {"$gt":10000000}}).sort({"price":-1}).limit(10)
-db.otodom.find({"price": {"$gt":10000000}}).sort({"price":-1}).limit(10)
-
 db.olx.find({}).sort({"download_date":-1}).limit(10)
 db.gratka.find({}).sort({"download_date":-1}).limit(10)
 db.morizon.find({}).sort({"download_date":-1}).limit(10)

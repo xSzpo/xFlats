@@ -1,0 +1,12 @@
+pip
+pytz
+lxml
+boto3
+requests
+pymongo
+numpy==1.15.4
+botocore
+xmltodict
+Scrapy
+twisted
+kafka-python
