@@ -1,7 +1,7 @@
 authorName: Daniel
 experimentName: xflats
 trialConcurrency: 1
-maxExecDuration: 5h
+maxExecDuration: 7h
 maxTrialNum: 100
 #choice: local, remote
 trainingServicePlatform: local

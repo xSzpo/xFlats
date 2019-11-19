@@ -180,11 +180,33 @@ def run(X_train, X_test, y_train, y_test, model_):
     y_train_log = np.log1p(y_train)
     model_.fit(X_train, y_train_log)
 
-    predict_y = model_.predict(X_test)
-    predict_y = np.expm1(predict_y)
+    predict_y_train = model_.predict(X_train)
+    predict_y_train = np.expm1(predict_y_train)
 
-    score = np.int(mean_absolute_error(y_test, predict_y))
-    LOG.info('mean_absolute_error on test score: %s' % score)
+    predict_y_test = model_.predict(X_test)
+    predict_y_test = np.expm1(predict_y_test)
+
+    score_train = np.int(mean_absolute_error(y_train, predict_y_train))
+    r2_train = r2_score(y_train, predict_y_train)
+    LOG.info('mean_absolute_error on train : %s' % score_train)
+    LOG.info('r2 on train : %s' % r2_train)
+
+    score_test = np.int(mean_absolute_error(y_test, predict_y_test))
+    r2_test = r2_score(y_test, predict_y_test)
+    LOG.info('mean_absolute_error on test : %s' % score_test)
+    LOG.info('r2 on test : %s' % r2_test)
+
+    # add penalty if r2 train score is larger then r2 test score
+    if r2_train/r2_test > 1:
+        score_rate = (r2_train/r2_test)**2
+    else:
+        score_rate = 1
+
+    LOG.info('score rate: %s' % score_rate)
+
+    score = score_test * score_rate
+
+    LOG.info('corrected mean_absolute_error on test score: %s' % score)
     nni.report_final_result(score)
 
 

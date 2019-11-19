@@ -1,14 +1,10 @@
 pip
 unidecode
-lxml
-boto3
-requests
-pymongo
-Pillow
+pymongo ==3.9.0
 pandas==0.25.1
-botocore
-numpy==1.15.4
-xmltodict
+joblib==0.13.2
+numpy==1.17.4
 scikit-learn==0.20.0
 flask==1.1.1
-lightgbm
+lightgbm==2.3.0
+category_encoders==2.1.0

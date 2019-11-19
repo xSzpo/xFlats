@@ -1,4 +1,5 @@
 # Use an official Python runtime as a parent image
+# docker build -t app_mlmodel:0.0.2 .
 # docker run -it python:3.7-alpine /bin/ash
 # docker run -it python:3.7.2-slim bash
 # docker exec -it <container-name/ID> bash
@@ -21,5 +22,3 @@ EXPOSE 8080
 
 # run
 CMD ["python", "-u","/app/docker_app.py"]
-
-

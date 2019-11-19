@@ -1,5 +1,15 @@
 use OFFERS
 
+db.otodom.find({
+    "$and" :[
+        {"$or":[{"year_of_building" : {"$gt": 1850, "$lt": 2050}},{"year_of_building":{ "$exists": false }},{"year_of_building":null}]},
+        {"price":{"$gt": 100000, "$lt":1500000}},
+        {"flat_size" : {"$gt": 6, "$lt":150}},
+        {"GC_longitude" : {"$gt": 20.5, "$lt": 21.5}},
+        {"GC_latitude" : {"$gt": 51, "$lt": 52.5}}
+        ]
+})
+
 
 db.otodom.createIndex({"download_date": 1})
 db.olx.createIndex({"download_date": 1})
