@@ -88,3 +88,6 @@ EC2/*.pem
 
 #temp files
 _tmp*
+
+# aws
+.aws-sam
