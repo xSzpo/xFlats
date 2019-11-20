@@ -31,7 +31,6 @@ def scraper(event={}, context={}):
         'scraper.pipelines.CheckIfExistMongo': 105,
         'scraper.pipelines.OutputFilter': 110,
         'scraper.pipelines.ProcessItemGeocode': 115,
-        'scraper.pipelines.OutputMongo': 202,
         'scraper.pipelines.OutputKafka': 401
     }
 
