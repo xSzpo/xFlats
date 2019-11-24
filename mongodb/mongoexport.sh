@@ -1,0 +1,4 @@
+mongoexport --host=localhost --port=27017 --username=xflats --password xflats --authenticationDatabase=admin --collection=olx --db=OFFERS --out=olx.json
+mongoexport --host=localhost --port=27017 --username=xflats --password xflats --authenticationDatabase=admin --collection=gratka --db=OFFERS --out=gratka.json
+mongoexport --host=localhost --port=27017 --username=xflats --password xflats --authenticationDatabase=admin --collection=otodom --db=OFFERS --out=otodom.json
+mongoexport --host=localhost --port=27017 --username=xflats --password xflats --authenticationDatabase=admin --collection=morizon --db=OFFERS --out=morizon.json

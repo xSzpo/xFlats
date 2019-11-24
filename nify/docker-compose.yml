@@ -1,0 +1,13 @@
+version: '3.1'
+
+services:
+
+  nify:
+    image: apache/nifi:1.10.0
+    restart: always
+    ports:
+      - 9090:9090
+    environment:
+      NIFI_WEB_HTTP_PORT: 9090
+    volumes:
+      - ./conf:/opt/nifi/nifi-current/conf/

@@ -1,4 +1,6 @@
 #Use root/example as user/password credentials
+# docker exec -it <container> /bin/bash
+
 version: '3.1'
 
 services:
@@ -27,6 +29,9 @@ services:
       - webnet
 
   kafka:
+    #https://jaceklaskowski.gitbooks.io/apache-kafka/kafka-docker.html
+    #docker-compose exec kafka kafka-topics.sh  --bootstrap-server :9092  --list
+    #docker-compose exec kafka kafka-topics.sh  --bootstrap-server :9092 --describe --topic olx
     image: wurstmeister/kafka:2.12-2.3.0
     restart: always
     ports:
@@ -40,15 +45,19 @@ services:
     networks:
       - webnet
 
-  nify:
-    image: apache/nifi:1.9.2
+
+  nifi:
+  # docker exec -it <container id> /bin/sh
+    image: apache/nifi:1.10.0
     restart: always
     ports:
       - 9090:9090
     environment:
       NIFI_WEB_HTTP_PORT: 9090
+    #volumes:
+    #  - ./nify/conf:/opt/nifi/nifi-current/conf/
     volumes:
-      - ./nify/conf:/opt/nifi/nifi-current/conf/
+      - ./nify/temples:/opt/nifi/conf/templates/
     networks:
       - webnet
 
@@ -71,7 +80,7 @@ services:
       - ./app_web/scraper/settings.py:/app/scraper/settings.py
       - ./app_web/scraper/spiders/xhpats.json:/app/scraper/spiders/xhpats.json
     environment:
-      SCRAPER_START_DELAY_SEC: 60
+      SCRAPER_START_DELAY_SEC: 180
       SCRAPER_DELAY_AFTER_EACH_RUN_SEC: 180
     depends_on:
       - mongo
@@ -90,7 +99,7 @@ services:
       - ./app_web/scraper/settings.py:/app/scraper/settings.py
       - ./app_web/scraper/spiders/xhpats.json:/app/scraper/spiders/xhpats.json
     environment:
-      SCRAPER_START_DELAY_SEC: 60
+      SCRAPER_START_DELAY_SEC: 180
       SCRAPER_DELAY_AFTER_EACH_RUN_SEC: 180
     depends_on:
       - mongo
@@ -109,7 +118,7 @@ services:
       - ./app_web/scraper/settings.py:/app/scraper/settings.py
       - ./app_web/scraper/spiders/xhpats.json:/app/scraper/spiders/xhpats.json
     environment:
-      SCRAPER_START_DELAY_SEC: 60
+      SCRAPER_START_DELAY_SEC: 180
       SCRAPER_DELAY_AFTER_EACH_RUN_SEC: 180
     depends_on:
       - mongo
@@ -128,7 +137,7 @@ services:
       - ./app_web/scraper/settings.py:/app/scraper/settings.py
       - ./app_web/scraper/spiders/xhpats.json:/app/scraper/spiders/xhpats.json
     environment:
-      SCRAPER_START_DELAY_SEC: 60
+      SCRAPER_START_DELAY_SEC: 180
       SCRAPER_DELAY_AFTER_EACH_RUN_SEC: 180
     depends_on:
       - mongo

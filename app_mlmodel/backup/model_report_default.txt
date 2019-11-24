@@ -1,0 +1,3 @@
+Train set r2 score 0.9336, median absolute error 27640, mean absolute error 44152 
+Test set r2 score 0.8982, median absolute error 32888, mean absolute error 53872 
+Out of time set r2 score 0.91, median absolute error 43924, mean absolute error 51003 

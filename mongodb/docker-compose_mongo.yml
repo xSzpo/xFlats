@@ -7,7 +7,7 @@ services:
     image: mongo:4.2.0-bionic
     restart: always
     environment:
-      MONGO_INITDB_DATABASE: Otodom
+      MONGO_INITDB_DATABASE: OFFERS
       MONGO_INITDB_ROOT_USERNAME: xflats
       MONGO_INITDB_ROOT_PASSWORD: xflats
       #docker run -p 27017:27017 -e "MONGO_INITDB_DATABASE=Otodom" -e "MONGO_INITDB_ROOT_USERNAME=xflats" -e "MONGO_INITDB_ROOT_PASSWORD=xflats" mongo
