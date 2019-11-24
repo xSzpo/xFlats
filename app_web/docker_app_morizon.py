@@ -35,18 +35,21 @@ def scraper(event={}, context={}):
     }
 
     # wait until mongodb is ready
-    sleep_time = int(os.environ['SCRAPER_START_DELAY_SEC']) if 'SCRAPER_START_DELAY_SEC' in os.environ.keys() else 30
+    sleep_time = int(os.environ['SCRAPER_START_DELAY_SEC']) if \
+        'SCRAPER_START_DELAY_SEC' in os.environ.keys() else 30
     time.sleep(sleep_time)
 
     scrapy_del = int(os.environ['SCRAPER_DELAY_AFTER_EACH_RUN_SEC']) if \
         'SCRAPER_DELAY_AFTER_EACH_RUN_SEC' in os.environ.keys() else 60
 
-    ScrapyLoop(settings=settings, success_interval=scrapy_del).loop_crawl('morizon')
+    ScrapyLoop(settings=settings, success_interval=scrapy_del). \
+        loop_crawl('morizon')
 
     return {
         'statusCode': 200,
         'body': json.dumps('scraping successful')
     }
+
 
 if __name__ == "__main__":
 

@@ -4,6 +4,9 @@ import pandas as pd
 import numpy as np
 import unicodedata
 import unidecode
+import logging
+
+LOG = logging.getLogger(__name__)
 
 
 class PrepareData(BaseEstimator, TransformerMixin):
@@ -47,8 +50,8 @@ class PrepareData(BaseEstimator, TransformerMixin):
 
     def normalize_text(self, txt):
         if txt is not None:
-            return unicodedata.normalize('NFKD', txt.replace(u"ł", "l")
-            ).encode('ASCII', 'ignore').decode('ASCII')
+            return unicodedata.normalize('NFKD', txt.replace(u"ł", "l")). \
+                encode('ASCII', 'ignore').decode('ASCII')
         else:
             return ""
 
@@ -102,6 +105,7 @@ class PrepareData(BaseEstimator, TransformerMixin):
         :return: input dictionar with new field if inserted
         :rtype: dict
         """
+
         if field not in dict_.keys():
             dict_[field] = None
         return dict_[field]
@@ -161,7 +165,7 @@ class PrepareData(BaseEstimator, TransformerMixin):
             if tmp_['name'] is None:
                 tmp_['name'] = 'no_value'
 
-            tmp_['description'] = tmp_['description'] +" PASTA: "
+            tmp_['description'] = tmp_['description'] + " PASTA: "
 
             for key in ['additional_info',
                         'building_type',
@@ -193,15 +197,17 @@ class PrepareData(BaseEstimator, TransformerMixin):
                 tmp_['description'] = self.add_text_field_2_descr(
                     tmp_, key,  'description')
 
-            for key in ['year_of_building', 'number_of_floors',
-                        'terrece_size', ' flat_height']:
+            for key in ['year_of_building', 'number_of_floors', 'floor',
+                        'terrece_size', ' flat_height', 'rent_price']:
                 tmp_[key] = self.insert_field_if_not_exist(tmp_, key)
 
             if self.extraxt_year:
-                tmp_['year_of_building'] = self.extraxt_year(
-                    tmp_['description']) if \
-                    tmp_['year_of_building'] != tmp_['year_of_building'] \
-                    else tmp_['year_of_building']
+                if (
+                    (tmp_['year_of_building'] != tmp_['year_of_building'])
+                    or (tmp_['year_of_building'] == 0)
+                   ):
+                    tmp_['year_of_building'] = self.extraxt_year(
+                        tmp_['description'])
 
             if self.clean_descr:
                 tmp_['description'] = self.clean_description(
@@ -224,7 +230,8 @@ class PrepareData(BaseEstimator, TransformerMixin):
 
     def transform(self, x):
         tmp = self.clean_data(x)
-        tmp = pd.DataFrame(tmp)[self.all_fields]
+        tmp = pd.DataFrame(tmp)
+        tmp = tmp[self.all_fields]
         return tmp
 
 
@@ -236,9 +243,11 @@ class PassThroughOrReplace(BaseEstimator, TransformerMixin):
     * It will fill na if fillna is True, text with 'novalue', numeric with mean
     """
 
-    def __init__(self, replace_dict=None, fillna=False, **kwargs):
+    def __init__(self, replace_dict=None, fillnawnan=True,
+                 fillna=False, **kwargs):
         self.replace_dict = replace_dict
         self.fillna = fillna
+        self.fillnawnan = fillnawnan
         self.kwargs = kwargs
 
     def fit(self, x, y=None):
@@ -313,6 +322,20 @@ class PassThroughOrReplace(BaseEstimator, TransformerMixin):
             if len(self.f_numeric) > 0 and type(new_x) == \
                     pd.core.series.Series:
                 new_x = new_x.fillna(self.means[x.name]["mean"]).to_frame()
+
+        if self.fillnawnan:
+            if len(self.f_category) > 0:
+                #new_x.replace({'': np.nan}, inplace=True)
+                new_x.fillna('novalue', inplace=True)
+
+            if len(self.f_numeric) > 0 and type(new_x) == \
+                    pd.core.frame.DataFrame:
+                for col in self.f_numeric:
+                    new_x[col] = new_x[col].fillna(np.nan)
+
+            if len(self.f_numeric) > 0 and type(new_x) == \
+                    pd.core.series.Series:
+                new_x = new_x.fillna(np.nan).to_frame()
 
         return new_x
 

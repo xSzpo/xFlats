@@ -22,6 +22,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import r2_score, median_absolute_error
 from sklearn.metrics import mean_absolute_error
+from sklearn.compose import TransformedTargetRegressor
 import lightgbm as lgb
 import pickle
 import argparse
@@ -88,7 +89,7 @@ def load_data(mode='DOCKER'):
             serverSelectionTimeoutMS=5000)
 
         LOG.info("Connected to MongoDB {}, address: {}:{}".format(
-            connection.server_info()['version'],MONGO_ADDRESS, MONGO_PORT))
+            connection.server_info()['version'], MONGO_ADDRESS, MONGO_PORT))
 
     except (ConnectionFailure, ServerSelectionTimeoutError) as e:
         LOG.error("pymongo.errors, Could not connect to server: %s" % e)
@@ -103,16 +104,11 @@ def load_data(mode='DOCKER'):
     raw_data = []
     for collection in MONGO_COLLECTIONS:
         raw_data += [i for i in db[collection].find(
-            {
-                "$or": [
-                    {"year_of_building": {"$gt": 1850, "$lt": 2050}},
-                    {"year_of_building": {"$exists": False}},
-                    {"year_of_building": None}],
-                "price": {"$gt": 100000, "$lt": 1500000},
+            {"price": {"$gt": 100000, "$lt": 1500000},
                 "flat_size": {"$gt": 6, "$lt": 150},
                 "GC_longitude": {"$gt": 20.5, "$lt": 21.5},
                 "GC_latitude": {"$gt": 51, "$lt": 52.5}
-            })]
+             })]
 
     LOG.debug("data downloaded from db: %d records" % len(raw_data))
 
@@ -129,6 +125,11 @@ def load_data(mode='DOCKER'):
     download_date = [i['download_date'].date() for i in raw_data]
     oot_date_lim = max(download_date)-timedelta(days=3)
     bool_oot = [i >= oot_date_lim for i in download_date]
+
+    if len(list(compress(raw_data, bool_oot)))/len(raw_data) > 0.1:
+        oot_date_lim = max(download_date)-timedelta(hours=6)
+        bool_oot = [i >= oot_date_lim for i in download_date]
+
     bool_train_test = [i < oot_date_lim for i in download_date]
     fold_train_test = np.random.choice(['train', 'test'],
                                        len(bool_train_test),
@@ -214,8 +215,11 @@ def get_model(PARAMS):
                         use_idf=PARAMS['txt_dscr__use_idf']),
                  'description'),
             ]),
-            lgb.LGBMRegressor(**PARAMS,
-                              random_state=seed)
+            TransformedTargetRegressor(
+                regressor=lgb.LGBMRegressor(**PARAMS, random_state=seed),
+                func=np.log1p,
+                inverse_func=np.expm1
+                                      )
         )
 
         return pipe
@@ -237,8 +241,7 @@ def get_default_parameters():
 @timeit
 def train(X_train, y_train, model_):
     """Train model"""
-    y_train_log = np.log1p(y_train)
-    model_.fit(X_train, y_train_log)
+    model_.fit(X_train, y_train)
     return model_
 
 
@@ -248,7 +251,6 @@ def report(X_train, y_train, X_test, y_test, X_oot, y_oot, model_,
     """Asses model performance"""
 
     predict_y = model_.predict(X_train)
-    predict_y = np.expm1(predict_y)
     r2 = r2_score(y_train, predict_y)
     med_abs_err = median_absolute_error(y_train, predict_y)
     mean_abs_err = mean_absolute_error(y_train, predict_y)
@@ -258,7 +260,6 @@ def report(X_train, y_train, X_test, y_test, X_oot, y_oot, model_,
     LOG.debug(score_train)
 
     predict_y = model_.predict(X_test)
-    predict_y = np.expm1(predict_y)
     r2 = r2_score(y_test, predict_y)
     med_abs_err = median_absolute_error(y_test, predict_y)
     mean_abs_err = mean_absolute_error(y_test, predict_y)
@@ -268,7 +269,6 @@ def report(X_train, y_train, X_test, y_test, X_oot, y_oot, model_,
     LOG.debug(score_test)
 
     predict_y = model_.predict(X_oot)
-    predict_y = np.expm1(predict_y)
     r2 = r2_score(y_oot, predict_y)
     med_abs_err = median_absolute_error(y_oot, predict_y)
     mean_abs_err = mean_absolute_error(y_oot, predict_y)
@@ -286,6 +286,9 @@ def report(X_train, y_train, X_test, y_test, X_oot, y_oot, model_,
 
 def main_train(mode='DOCKER'):
     X_train, X_test, X_oot, y_train, y_test, y_oot = load_data(mode=mode)
+    LOG.debug("Train size: %d " % len(X_train))
+    LOG.debug("Test size: %d " % len(X_test))
+    LOG.debug("OOT size: %d " % len(X_oot))
     PARAMS = get_default_parameters()
     model = get_model(PARAMS)
     LOG.info(model)

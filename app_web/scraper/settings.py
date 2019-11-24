@@ -28,7 +28,7 @@ ROBOTSTXT_OBEY = True
 CONCURRENT_REQUESTS = 1
 DOWNLOAD_DELAY = 0.5
 LOGSTATS_INTERVAL = 0
-CRAWL_LIST_PAGES = 20  #how many pages with links you want to crawl (start pages)
+CRAWL_LIST_PAGES = 999  # how many pages with links ]to crawl (start pages)
 
 # -----------------------------------------------------------------------------
 # USER AGENT
