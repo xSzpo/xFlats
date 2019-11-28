@@ -23,6 +23,10 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG,
 
 app = Flask(__name__)
 
+np.random.seed(666)
+random.seed(666)
+os.environ['PYTHONHASHSEED'] = str(666)
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -35,23 +39,35 @@ def predict():
         json_ = sorted([json_], key=lambda i: i['_id'])
     else:
         json_ = sorted(json_, key=lambda i: i['_id'])
-
-    np.random.seed(666)
-    random.seed(666)
-    os.environ['PYTHONHASHSEED'] = str(666)
+    LOG.debug("Predict {} record/s".format(len(json_)))
     prediction = list(clf.predict(json_))
-
+    results = list()
     for i, predict in enumerate(prediction):
         json_[i]['prediction'] = int(predict)
+        json_[i]['model_name'] = model_path.split("/")[-1]
+    return jsonify(json_), 200, {"mimetype": "application/json"}
 
-    return jsonify(json_)
+
+@app.route('/predictone', methods=['POST'])
+def predictone():
+    if type(request.data) == bytes:
+        request_data = request.data.decode("utf-8")
+    else:
+        request_data = request.data
+    json_ = json.loads(request_data)
+    LOG.debug("Predict(one) {}".format(json_['_id']))
+    prediction = list(clf.predict(json_))
+    json_['prediction'] = int(prediction[0])
+    json_['model_name'] = model_path.split("/")[-1]
+
+    return jsonify(json_), 200, {"mimetype": "application/json"}
 
 
 @app.route('/train', methods=['GET'])
 def train_model():
     mode = request.args.get('dev')
     score = train.main_train(mode=mode)
-    return jsonify({'score': score})
+    return jsonify({'score': score}), 200, {"mimetype": "application/json"}
 
 
 if __name__ == '__main__':
