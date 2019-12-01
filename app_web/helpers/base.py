@@ -11,7 +11,8 @@ from bson.json_util import dumps, loads
 from functools import reduce
 import codecs
 import pymongo
-from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError, WriteError, WriteConcernError, WTimeoutError
+from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError
+from pymongo.errors import WriteError, WriteConcernError, WTimeoutError
 import pytz
 import gc
 from scrapy import logformatter
@@ -24,7 +25,7 @@ class PoliteLogFormatter(logformatter.LogFormatter):
     def dropped(self, item, exception, response, spider):
         if '_id' in item.keys():
             return {
-                'level': logging.INFO, # lowering the level from logging.WARNING
+                'level': logging.INFO,
                 'msg': u"Dropped item %s" % item['_id'],
                 'args': {
                     'exception': exception,
@@ -33,8 +34,8 @@ class PoliteLogFormatter(logformatter.LogFormatter):
             }
         else:
             return {
-                'level': logging.INFO, # lowering the level from logging.WARNING
-                'msg': u"Dropped item, exception:  %s" %exception,
+                'level': logging.INFO,
+                'msg': u"Dropped item, exception: %s" % exception,
                 'args': {
                     'exception': exception,
                     'item': item,
@@ -60,14 +61,17 @@ class FilesMongo:
 
         try:
             if username == '':
-                conn = pymongo.MongoClient(host=address, port=port, serverSelectionTimeoutMS=5000)
+                conn = pymongo.MongoClient(
+                    host=address, port=port, serverSelectionTimeoutMS=5000)
             else:
-                conn = pymongo.MongoClient(host=address, port=port, username=username, password=password,
-                                           authSource='admin', authMechanism='SCRAM-SHA-256',
-                                           serverSelectionTimeoutMS=5000)
+                conn = pymongo.MongoClient(
+                    host=address, port=port, username=username,
+                    password=password, authSource='admin',
+                    authMechanism='SCRAM-SHA-256',
+                    serverSelectionTimeoutMS=5000)
 
-            logger.info("Connected to MongoDB {}, address: {}:{}".format(conn.server_info()['version'],
-                                                                         address, port))
+            logger.info("Connected to MongoDB {}, address: {}:{}".format(
+                conn.server_info()['version'], address, port))
             return conn[database][collection]
 
         except (ConnectionFailure, ServerSelectionTimeoutError) as e:
@@ -85,7 +89,9 @@ class FilesMongo:
         db.create_index([(download_date, 1)])
         logger.info("MongoDB: Read list of files")
         list_ = [i[id_field] for i in db.find({}, {id_field: 1})]
-        logger.info("MongoDB: Read list of files is done, its {} of files".format(len(list_)))
+        logger.info(
+            "MongoDB: Read list of files is done, its {} of files".format(
+                len(list_)))
         gc.collect()
         return list_
 
@@ -101,8 +107,10 @@ class FilesMongo:
 
         id_field = settings['ID_FIELD']
         try:
-            w = db.update_one({id_field: object_file[id_field]}, {"$set": object_file}, upsert=True)
-            logger.info("MongoDB: save offer {} to mongodb, {}".format(object_file[id_field],w))
+            w = db.update_one({id_field: object_file[id_field]},
+                              {"$set": object_file}, upsert=True)
+            logger.info("MongoDB: save offer {} to mongodb, {}".format(
+                object_file[id_field], w))
             pass
 
         except (ConnectionFailure, ServerSelectionTimeoutError) as e:

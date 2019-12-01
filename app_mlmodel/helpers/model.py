@@ -370,8 +370,9 @@ class transformColList(BaseEstimator, TransformerMixin):
                          if item != ''])
                     self.columnNames += [i[1] for i in self.cor_values[col]]
                 else:
-                    self.cor_values[col] = [(item, col + "_" + self.__correct_names(item)) for item in
-                                            list(x[col].unique()) if item is not None]
+                    self.cor_values[col] = [
+                        (item, col + "_" + self.__correct_names(item)) for
+                        item in list(x[col].unique()) if item is not None]
                     self.columnNames += [i[1] for i in self.cor_values[col]]
 
         if type(x) == pd.core.series.Series:
@@ -382,12 +383,14 @@ class transformColList(BaseEstimator, TransformerMixin):
             for col in self.columns:
                 if type(x.to_list()[0]) == list:
                     self.cor_values[col] = set(
-                        [(item, col + "_" + self.__correct_names(item)) for sublist in x.values for item in sublist if
+                        [(item, col + "_" + self.__correct_names(item)) for
+                         sublist in x.values for item in sublist if
                          item != ''])
                     self.columnNames = [i[1] for i in self.cor_values[col]]
                 else:
-                    self.cor_values[col] = [(item, col + "_" + self.__correct_names(item)) for item in list(x.unique())
-                                            if item is not None]
+                    self.cor_values[col] = [
+                        (item, col + "_" + self.__correct_names(item)) for
+                        item in list(x.unique()) if item is not None]
                     self.columnNames = [i[1] for i in self.cor_values[col]]
 
         return self
