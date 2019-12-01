@@ -85,9 +85,12 @@ nify/conf/archive/*
 *.pem
 EC2/*.pem
 *.key
-
+.keys
 #temp files
 _tmp*
+
+#env vars docker
+*.env
 
 # aws
 .aws-sam

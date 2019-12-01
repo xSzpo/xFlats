@@ -1,3 +1,4 @@
+import os
 # -*- coding: utf-8 -*-
 
 # Scrapy settings for app_webscr_pipe_otodom project
@@ -85,8 +86,8 @@ SOURCE = 'LOCAL'
 MONGO_ADDRESS = 'localhost'
 MONGO_PORT = 27017
 MONGO_DBNAME = 'OFFERS'
-MONGO_USERNAME = 'xflats'
-MONGO_PASSWORD = 'xflats'
+MONGO_USERNAME = os.environ['MONGO_USERNAME']
+MONGO_PASSWORD = os.environ['MONGO_PASSWORD']
 ID_FIELD = '_id'
 DOWNLOAD_DATE = 'download_date'
 
