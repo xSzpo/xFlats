@@ -10,11 +10,13 @@ db.otodom.find({
         ]
 })
 
+db.gratka.find({ "download_date_utc" : { "$exists" : false } })
 
-db.otodom.createIndex({"download_date": 1})
-db.olx.createIndex({"download_date": 1})
-db.gratka.createIndex({"download_date": 1})
-db.morizon.createIndex({"download_date": 1})
+
+db.otodom.createIndex({"download_date_utc": 1})
+db.olx.createIndex({"download_date_utc": 1})
+db.gratka.createIndex({"download_date_utc": 1})
+db.morizon.createIndex({"download_date_utc": 1})
 
 
 db.otodom.find({}).count()
@@ -28,10 +30,10 @@ db.olx.find({})
 db.gratka.find({})
 db.morizon.find({})
 
-db.otodom.find({}).sort({"download_date":-1}).limit(10)
-db.olx.find({}).sort({"download_date":-1}).limit(10)
-db.gratka.find({}).sort({"download_date":-1}).limit(10)
-db.morizon.find({}).sort({"download_date":-1}).limit(10)
+db.otodom.find({}).sort({"download_date_utc":-1}).limit(10)
+db.olx.find({}).sort({"download_date_utc":-1}).limit(10)
+db.gratka.find({}).sort({"download_date_utc":-1}).limit(10)
+db.morizon.find({}).sort({"download_date_utc":-1}).limit(10)
 
 db.otodom.find({"price": {"$gt":10000000}}).sort({"price":-1}).limit(10)
 db.olx.find({"price": {"$gt":10000000}}).sort({"price":-1}).limit(10)
@@ -44,7 +46,7 @@ db.morizon.find({}).sort({"download_date":-1}).limit(10)
 
 
 
-db.olx.find({"_id":"olx_506908384_417000"})
+db.gratka.find({"_id":"gra_14639472_175000000"})
 db.otodom.find({}).sort({"download_date":-1}).limit(10)
 db.olx.find({}).sort({"download_date":-1}).limit(10)
 
@@ -69,7 +71,6 @@ db.collection.aggregate([
     $project: { ts: { $toDate: { $multiply: ['$download_date', 1000] } } }
 ])
   
-db.test.find({})
 
 db.Otodom.find({"_id":'56128220_246000'})
 db.Otodom.find({}).sort({"download_date":-1}).limit(10)
@@ -78,9 +79,14 @@ db.Otodom.createIndex({ price_model_dif: 1 })
 
 db.otodom.find({ "GC_addr_city" : { "$exists" : false } })
 
+
+
 db.Otodom.find({ "prediction_time" : { "$exists" : true } })
 
 db.Otodom.find({ "prediction_time" : { "$exists" : false } }).count()
+
+
+db.gratka.find({ "GC_addr_city" : { "$exists" : false } })
 
 
 
