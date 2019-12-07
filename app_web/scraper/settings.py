@@ -95,7 +95,7 @@ DOWNLOAD_DATE = 'download_date'
 BUCKET_NAME = 'mojewiadroxszpo'
 
 # local
-LOCAL_FILE_PATH = "/Users/xszpo/Google Drive/DataScience/DATA/xflats/data.jsonline"
+LOCAL_FILE_PATH = "/Users/xszpo/GoogleDrive/DataScience/Projects/201907_xFlat_AWS_Scrapy/app_web/data.jsonline"
 
 # kafka
 KAFKA_HOST = "0.0.0.0"
@@ -107,12 +107,12 @@ KAFKA_PORT = "9092"
 
 ITEM_PIPELINES = {
     'scraper.pipelines.ProcessItem': 100,
-    'scraper.pipelines.CheckIfExistMongo':105,
+    'scraper.pipelines.CheckIfExistMongo': 105,
     'scraper.pipelines.OutputFilter': 110,
-    'scraper.pipelines.ProcessItemGeocode':115,
+    'scraper.pipelines.ProcessItemGeocode': 115,
     #'scraper.pipelines.OutputLocal': 201,
     'scraper.pipelines.OutputMongo': 202,
     #'scraper.pipelines.OutputS3': 203,
     #'scraper.pipelines.OutputKafka': 401,
-    #'scraper.pipelines.OutputStdout': 402
+    'scraper.pipelines.OutputStdout': 402
 }

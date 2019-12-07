@@ -1,0 +1,52 @@
+version: '3.1'
+
+services:
+
+  nify:
+    image: apache/nifi:1.10.0
+    restart: always
+    ports:
+      - 9090:9090
+    environment:
+      NIFI_WEB_HTTP_PORT: 9090
+    volumes:
+      - ./conf:/opt/nifi/nifi-current/conf/
+
+    nifi:
+      #image: apache/nifi:1.10.0
+      build:
+        context: ./nifi
+        dockerfile: Dockerfile_nifi
+      image: nifi_xflats:0.0.1
+      container_name: nifi
+      restart: always
+      ports:
+        - 9090:9090
+      env_file: ./secrets/nifi.env
+      environment:
+        NIFI_WEB_HTTP_PORT: 9090
+        MONGO_INITDB_DATABASE: OFFERS
+      #volumes:
+      #  - ./nifi/conf:/opt/nifi/nifi-current/conf
+      networks:
+        - webnet
+
+
+  minifi:
+    #image: apache/nifi:1.10.0
+    build:
+      context: ./nifi
+      dockerfile: Dockerfile_minifi
+    image: minifi_xflats:0.0.1
+    container_name: minifi
+    restart: always
+    ports:
+      - 9090:9090
+    env_file: ./secrets/nifi.env
+    environment:
+      NIFI_WEB_HTTP_PORT: 9090
+      MONGO_INITDB_DATABASE: OFFERS
+    #volumes:
+    #  - ./nifi/conf:/opt/nifi/nifi-current/conf
+    networks:
+      - webnet
