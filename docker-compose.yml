@@ -42,7 +42,11 @@ services:
       - webnet
 
   nifi:
-    image: apache/nifi:1.10.0
+    #image: apache/nifi:1.10.0
+    build:
+      context: ./nifi
+      dockerfile: Dockerfile_nifi
+    image: nifi_xflats:0.0.1
     container_name: nifi
     restart: always
     ports:
@@ -51,8 +55,8 @@ services:
     environment:
       NIFI_WEB_HTTP_PORT: 9090
       MONGO_INITDB_DATABASE: OFFERS
-    volumes:
-      - ./nify/temples:/opt/nifi/conf/templates/
+    #volumes:
+    #  - ./nifi/conf:/opt/nifi/nifi-current/conf
     networks:
       - webnet
 

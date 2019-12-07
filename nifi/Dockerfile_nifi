@@ -1,0 +1,4 @@
+FROM apache/nifi:1.10.0
+
+# Set the working directory to /app
+COPY --chown=nifi:nifi flow.xml.gz /opt/nifi/nifi-current/conf/

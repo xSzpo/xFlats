@@ -1,0 +1,7 @@
+FROM apache/nifi-minifi:0.5.0
+
+# copy lib
+COPY lib_minifi/* /opt/minifi/minifi-0.5.0/lib/
+
+# Set the working directory to /app
+COPY --chown=minifi:minifi flow.xml.gz /opt/minifi/minifi-0.5.0/conf
