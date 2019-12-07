@@ -1,0 +1,2 @@
+nifi-kafka-2-0-nar-1.10.0.nar
+nifi-mongodb-nar-1.10.0.tar
