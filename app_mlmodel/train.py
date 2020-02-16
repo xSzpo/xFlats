@@ -13,6 +13,7 @@ from pymongo.errors import WriteError, WriteConcernError, WTimeoutError
 import numpy as np
 import datetime
 from datetime import timedelta
+from dateutil import parser
 from itertools import compress
 import time
 import codecs
@@ -122,7 +123,9 @@ def load_data(mode='DOCKER'):
 
     np.random.seed(seed)
 
-    download_date = [i['download_date'].date() for i in raw_data]
+    #download_date = [i['download_date'].date() for i in raw_data]
+    download_date = [i['download_date'].date() if isinstance(i['download_date'],
+                     datetime.datetime) else parser.parse(i['download_date']).date() for i in raw_data]
     oot_date_lim = max(download_date)-timedelta(days=3)
     bool_oot = [i >= oot_date_lim for i in download_date]
 
