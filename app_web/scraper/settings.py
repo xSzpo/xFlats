@@ -114,5 +114,5 @@ ITEM_PIPELINES = {
     'scraper.pipelines.OutputMongo': 202,
     #'scraper.pipelines.OutputS3': 203,
     #'scraper.pipelines.OutputKafka': 401,
-    'scraper.pipelines.OutputStdout': 402
+    #'scraper.pipelines.OutputStdout': 402
 }

@@ -42,7 +42,7 @@ db.otodom.find({"price": {"$gt":10000000}}).sort({"price":-1}).limit(10)
 
 db.olx.find({}).sort({"download_date":-1}).limit(10)
 db.gratka.find({}).sort({"download_date":-1}).limit(10)
-db.morizon.find({}).sort({"download_date":-1}).limit(10)
+db.morizon_copy.find({}).sort({"download_date":-1}).limit(10)
 
 
 
@@ -51,26 +51,49 @@ db.otodom.find({}).sort({"download_date":-1}).limit(10)
 db.olx.find({}).sort({"download_date":-1}).limit(10)
 
 db.Otodom.find({"download_date" : {"$gt": ISODate("2019-10-01 20:16:00.248Z") }}).sort({"download_date":-1}).limit(10)
-db.Otodom.find({})
+db.otodom.find({})
 
 db.Otodom2.updateMany({ _id : "59565240_699000" } , {$set: {download_date2: {$toDate: { $multiply: ['$download_date', 1000] }}}})
 
-db.Otodom2.aggregate(
+db.olx.aggregate(
     [ 
-    { $match : { _id : "59565240_699000" } },
+    { $match : { _id : "olx_583511168_550000" } },
     { $project: { download_date: { $toDate: { $multiply: ['$download_date', 1000] } } } },
     { $merge: { into: "Otodom2", on: "_id", whenMatched: "merge", whenNotMatched: "discard" } }
     ]
 )
 
-db.Otodom2.find({ _id : "59565240_699000" })
+// update string to date
+    
+db.otodom.aggregate(
+    [ 
+    {$match : { download_date: { $type: "string" } } },
+    {$project: {
+      "download_date": {
+        "$dateFromString": {
+          "dateString": "$download_date"
+        }
+      }
+    }},
+    { $merge: { into: "otodom_copy", on: "_id", whenMatched: "merge", whenNotMatched: "discard" } }
+    ]
+)
+    
+db.morizon.find( { download_date: { $type: "string" } } )
+db.otodom.find( { download_date: { $type: "string" } } )
+db.olx.find( { download_date: { $type: "string" } } )
+db.gratka.find( { download_date: { $type: "string" } } )
    
-
-db.collection.aggregate([
-    {$match: {"_id":"56128220_246000"},
-    $project: { ts: { $toDate: { $multiply: ['$download_date', 1000] } } }
-])
   
+db.olx.aggregate([
+    { "$addFields": {
+        "created_at": { 
+            "$dateFromString": { 
+                "dateString": "$download_date"
+                } 
+        }
+    } }
+])
 
 db.Otodom.find({"_id":'56128220_246000'})
 db.Otodom.find({}).sort({"download_date":-1}).limit(10)
@@ -79,15 +102,9 @@ db.Otodom.createIndex({ price_model_dif: 1 })
 
 db.otodom.find({ "GC_addr_city" : { "$exists" : false } })
 
-
-
 db.Otodom.find({ "prediction_time" : { "$exists" : true } })
-
 db.Otodom.find({ "prediction_time" : { "$exists" : false } }).count()
-
-
 db.gratka.find({ "GC_addr_city" : { "$exists" : false } })
-
 
 
 db.Otodom.distinct("GC_addr_suburb")

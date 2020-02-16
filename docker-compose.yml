@@ -63,7 +63,7 @@ services:
   mlmodel:
     build: ./app_mlmodel
     container_name: mlmodel
-    image: app_mlmodel:0.0.1
+    image: app_mlmodel:0.0.2
     restart: always
     ports:
       - 8666:8666
