@@ -2,12 +2,12 @@
 
 **Monitoring and assessment system for flats offers that are put up for sale in Warsaw.**
 
-A service that monitor flats sale offers, that are put up in Warsaw.    
-When offer came out, system asses its market value and if the price is attractive compared to market value, a message is sent to user via Telegram messenger system. 
+A service that monitor flats sale offers.
+When offer came out, system asses its market value and if the price is attractive sends a message to a user via Telegram messenger.
 
 
 Keywords
-scraper, scrapy, python, kafka, nifi, mongodb, rest api, ml model, xgboost,  
+scraper, scrapy, python, kafka, nifi, mongodb, rest api, ml model, xgboost, fastapi
 
 **System architecture**
 
