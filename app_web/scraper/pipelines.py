@@ -169,7 +169,10 @@ class ProcessItem(object):
         price_str = ''.join([i for i in re.sub("[ ]", "", item["price"])
                              if i.isdigit()])
 
-        item['tracking_id'] = item['tracking_id'].strip()
+        #item['tracking_id'] = item['tracking_id'].strip()
+        item['tracking_id'] = int(np.float32(helpers.Scraper.digits_from_str(
+            item['tracking_id']))) if item['tracking_id'] is not None else None
+
         item['_id'] = "gra_"+str(item["tracking_id"]) + "_" + price_str
 
         # MODIFY DATA

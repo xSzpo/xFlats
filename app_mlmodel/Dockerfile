@@ -18,7 +18,7 @@ RUN apt-get update \
     && apt-get install libgomp1
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
-EXPOSE 8080
+EXPOSE 8666 8000
 
 # run
-CMD ["python", "-u","/app/docker_app.py"]
+CMD ["python", "-u","/app/fastapi_main.py"]

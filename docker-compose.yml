@@ -63,10 +63,11 @@ services:
   mlmodel:
     build: ./app_mlmodel
     container_name: mlmodel
-    image: app_mlmodel:0.0.2
+    image: app_mlmodel:1.0.0
     restart: always
     ports:
       - 8666:8666
+      - 8000:8000
     networks:
       - webnet
 
