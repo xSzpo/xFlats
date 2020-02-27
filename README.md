@@ -2,4 +2,4 @@
 House offers site watcher
 
 
-![system schema](doc/image/system_schema.png)
+![system schema](doc/img/system_schema.png)
