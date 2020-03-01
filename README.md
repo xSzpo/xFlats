@@ -16,3 +16,5 @@ scraper, scrapy, python, kafka, nifi, mongodb, rest api, ml model, xgboost, fast
 
 ### Changelog
 - [x] module app_mlmodel: change Flask to Fastapi (+swagger) [2020-02-27]
+- [x] ml_model: K8S yaml (deployment + srrvice)  
+
