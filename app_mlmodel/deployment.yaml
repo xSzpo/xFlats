@@ -5,7 +5,7 @@ metadata:
   labels:
     app: ml-model
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: ml-model
