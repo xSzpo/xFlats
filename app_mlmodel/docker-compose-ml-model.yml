@@ -1,0 +1,18 @@
+# docker exec -it <container> /bin/bash
+version: '3.7'
+
+services:
+
+  mlmodel:
+    build: .
+    container_name: mlmodel
+    image: app_mlmodel:1.0.0
+    restart: always
+    ports:
+      - 8666:8666
+      - 8000:8000
+    networks:
+      - webnet
+
+networks:
+  webnet:
