@@ -13,6 +13,9 @@ Icon
 # CMake
 cmake-build-debug/
 
+# pytest
+.pytest_cache/*
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
