@@ -15,3 +15,17 @@ services:
       - 27017:27017
     volumes:
       - ./db:/data/db
+    networks:
+      - webnet
+
+  redis:
+    image: redis:buster
+    container_name: redis
+    restart: always
+    ports:
+      - 6379:6379
+    networks:
+      - webnet
+
+networks:
+  webnet:

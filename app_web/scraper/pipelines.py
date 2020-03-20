@@ -17,6 +17,7 @@ import numpy as np
 from scrapy.exceptions import DropItem
 import kafka
 import pymongo
+import redis
 from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError
 from pymongo.errors import WriteError, WriteConcernError, WTimeoutError
 from pymongo.errors import DuplicateKeyError
@@ -26,7 +27,7 @@ import helpers
 logger = logging.getLogger(__name__)
 
 
-class ProcessItem(object):
+class ProcessItem:
 
     def process_item(self, item, spider):
         _ = spider
@@ -308,7 +309,7 @@ class ProcessItem(object):
         return tmp
 
 
-class ProcessItemGeocode(object):
+class ProcessItemGeocode:
 
     def process_item(self, item, spider):
         _ = spider
@@ -345,6 +346,7 @@ class ProcessItemGeocode(object):
         _ = item.pop('geo_address_text')
 
         return item
+
 
 class OutputLocal:
 
@@ -425,7 +427,7 @@ class OutputStdout:
         return item
 
 
-class OutputMongo(object):
+class OutputMongo:
 
     def __init__(self, mongo_adrress, mongo_port, mongo_dbname,
                  mongo_username, mongo_password, id_field, download_date):
@@ -456,12 +458,12 @@ class OutputMongo(object):
 
         try:
             w = self.db[item['producer_name']].insert_one(item)
-            logger.info("MongoDB: save offer {}, {}".format(
-                item[self.id_field], w))
+            logger.info("MongoDB: save offer {}".format(
+                item[self.id_field]))
         except (ConnectionFailure, ServerSelectionTimeoutError) as e:
             logger.error("pymongo.errors, Could not connect to server: %s" % e)
         except DuplicateKeyError as e:
-            logger.info("Do not save, record already in database error: %s" % e)
+            logger.info("Do not save, already in database error: %s" % e)
         except (WriteError, WriteConcernError, WTimeoutError) as e:
             logger.error("pymongo.errors, Write error: %s" % e)
         except BaseException as e:
@@ -477,18 +479,82 @@ class CheckIfExistMongo(OutputMongo):
         _ = spider
 
         try:
-            if self.db[item['producer_name']] \
+            if ("found" in item):
+                pass
+            elif self.db[item['producer_name']] \
                     .find_one({'_id': item[self.id_field]}, {'_id': 1}):
                 item["found"] = True
-                logger.info("Check: found in Mongo {} ".format(
+                logger.info("Mongo: found {} ".format(
                     item[self.id_field]))
-
         except (ConnectionFailure, ServerSelectionTimeoutError) as e:
             logger.error("pymongo.errors, Could not connect to server: %s" % e)
         except BaseException as e:
             logger.error(item[self.id_field])
             logger.error("BaseException, something went wrong: %s" % e)
         return item
+
+
+class OutputRedis():
+
+    def __init__(self, host, port, db, id_field):
+        self.host = host
+        self.port = port
+        self.db = db
+        self.id_field = id_field
+        self.r = redis.Redis(host=self.host, port=self.port, db=self.db)
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(
+            host=crawler.settings.get('REDIS_HOST'),
+            port=crawler.settings.get('REDIS_PORT'),
+            db=crawler.settings.get('REDIS_DB_INDEX'),
+            id_field=crawler.settings.get('ID_FIELD')
+        )
+
+    def process_item(self, item, spider):
+
+        _ = spider
+
+        try:
+            self.r.set(item[self.id_field], 1)
+            logger.info("Redis: add to cache {}".format(
+                item[self.id_field]))
+        except (redis.ConnectionError) as e:
+            logger.error("Could not connect to server: %s" % e)
+        except BaseException as e:
+            logger.error(item[self.id_field])
+            logger.error("BaseException at Redis, something went wrong: %s" %
+                         e)
+        return item
+
+
+class CheckIfExistRedis(OutputRedis):
+
+    def process_item(self, item, spider):
+
+        _ = spider
+
+        try:
+            if ("found" in item) and ("cache" not in item):
+                self.r.set(item[self.id_field], 1)
+                logger.info("Redis: add to cache {}".format(
+                    item[self.id_field]))
+            elif self.r.exists(item[self.id_field]) and ("cache" not in item):
+                item["found"] = True
+                item["cache"] = True
+                logger.info("Redis: found {} ".format(
+                    item[self.id_field]))
+        except (redis.ConnectionError) as e:
+            logger.error("Could not connect to server: %s" % e)
+        except BaseException as e:
+            logger.error(item[self.id_field])
+            logger.error("BaseException at Redis, something went wrong: %s" % e)
+        return item
+
+
+class UpdateExistRedis(CheckIfExistRedis):
+    pass
 
 
 class OutputS3:

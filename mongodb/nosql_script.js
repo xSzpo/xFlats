@@ -20,10 +20,16 @@ db.morizon.createIndex({"download_date_utc": 1})
 
 
 db.otodom.find({}).count()
-db.olx.find({}).count()
-db.gratka.find({}).count()
-db.morizon.find({}).count()
+db.otodom_copy.find({}).count()
 
+db.olx.find({}).count()
+db.olx_copy.find({}).count()
+
+db.gratka.find({}).count()
+db.gratka_copy.find({}).count()
+
+db.morizon.find({}).count()
+db.morizon_copy.find({}).count()
 
 db.otodom.find({})
 db.olx.find({})
@@ -32,8 +38,8 @@ db.morizon.find({})
 
 db.otodom.find({}).sort({"download_date_utc":-1}).limit(10)
 db.olx.find({}).sort({"download_date_utc":-1}).limit(10)
-db.gratka.find({}).sort({"download_date_utc":-1}).limit(10)
-db.morizon.find({}).sort({"download_date_utc":-1}).limit(10)
+db.gratka.find({}).sort({"download_date_utc":-1}).limit(100)
+db.morizon.find({}).sort({"download_date_utc":-1}).limit(100)
 
 db.otodom.find({"price": {"$gt":10000000}}).sort({"price":-1}).limit(10)
 db.olx.find({"price": {"$gt":10000000}}).sort({"price":-1}).limit(10)
@@ -55,9 +61,9 @@ db.otodom.find({})
 
 db.Otodom2.updateMany({ _id : "59565240_699000" } , {$set: {download_date2: {$toDate: { $multiply: ['$download_date', 1000] }}}})
 
-db.olx.aggregate(
+db.otodom.aggregate(
     [ 
-    { $match : { _id : "olx_583511168_550000" } },
+    { $match : { _id : "oto_60341718_519000" } },
     { $project: { download_date: { $toDate: { $multiply: ['$download_date', 1000] } } } },
     { $merge: { into: "Otodom2", on: "_id", whenMatched: "merge", whenNotMatched: "discard" } }
     ]
@@ -84,7 +90,11 @@ db.otodom.find( { download_date: { $type: "string" } } )
 db.olx.find( { download_date: { $type: "string" } } )
 db.gratka.find( { download_date: { $type: "string" } } )
    
-  
+db.morizon_copy.find( { download_date: { $type: "string" } } )
+db.otodom_copy.find( { download_date: { $type: "string" } } )
+db.olx_copy.find( { download_date: { $type: "string" } } )
+db.gratka_copy.find( { download_date: { $type: "string" } } )
+
 db.olx.aggregate([
     { "$addFields": {
         "created_at": { 

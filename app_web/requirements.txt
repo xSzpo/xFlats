@@ -10,4 +10,5 @@ xmltodict
 Scrapy==1.8.0
 Scrapy-UserAgents
 twisted==19.10.0
-kafka-python
+kafka-python==1.4.7
+redis==3.4.1

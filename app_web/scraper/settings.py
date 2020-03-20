@@ -91,6 +91,11 @@ MONGO_PASSWORD = os.environ['MONGO_PASSWORD']
 ID_FIELD = '_id'
 DOWNLOAD_DATE = 'download_date'
 
+# REDIS
+REDIS_HOST = 'localhost'
+REDIS_PORT = 6379
+REDIS_DB_INDEX = 0
+
 # S3
 BUCKET_NAME = 'mojewiadroxszpo'
 
@@ -107,12 +112,15 @@ KAFKA_PORT = "9092"
 
 ITEM_PIPELINES = {
     'scraper.pipelines.ProcessItem': 100,
+    'scraper.pipelines.CheckIfExistRedis': 104,
     'scraper.pipelines.CheckIfExistMongo': 105,
+    'scraper.pipelines.UpdateExistRedis': 106,
     'scraper.pipelines.OutputFilter': 110,
     'scraper.pipelines.ProcessItemGeocode': 115,
     #'scraper.pipelines.OutputLocal': 201,
     'scraper.pipelines.OutputMongo': 202,
     #'scraper.pipelines.OutputS3': 203,
+    'scraper.pipelines.OutputRedis': 204,
     #'scraper.pipelines.OutputKafka': 401,
     #'scraper.pipelines.OutputStdout': 402
 }

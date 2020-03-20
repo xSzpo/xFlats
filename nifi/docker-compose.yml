@@ -1,3 +1,9 @@
+docker run --name nifi_xflats \
+  -p 9090:9090 \
+  -d \
+  -e NIFI_WEB_HTTP_PORT='9090' \
+  nifi_xflats:0.0.1
+
 version: '3.1'
 
 services:

@@ -95,3 +95,6 @@ TMP
 
 # aws
 .aws-sam
+
+# antyching starting with _
+_*

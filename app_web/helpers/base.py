@@ -221,7 +221,8 @@ class Scraper:
 
     @staticmethod
     def current_datetime():
-        return datetime.datetime.now(pytz.timezone("Europe/Warsaw"))
+        return datetime.datetime.utcnow()
+        # return datetime.datetime.now(pytz.timezone("Europe/Warsaw"))
 
     @staticmethod
     def datetime2str(dt):
