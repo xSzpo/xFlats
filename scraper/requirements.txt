@@ -1,0 +1,13 @@
+pip
+requests
+pymongo==3.9.0
+numpy==1.16.0
+boto3==1.10.14
+xmltodict
+Scrapy==1.8.0
+Scrapy-UserAgents
+twisted==19.10.0
+redis==3.4.1
+google-cloud-storage==1.26.0
+jsonschema==3.0.2
+python-dateutil==2.8.0

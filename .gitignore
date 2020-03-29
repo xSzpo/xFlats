@@ -78,6 +78,7 @@ venv.bak/
 *.jsonl
 *.jsonline
 *.jsonlines
+data
 mongodb/db/*
 !mongodb/db/.gitkeep
 nify/conf/archive/*
