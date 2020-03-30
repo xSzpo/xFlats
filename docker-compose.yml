@@ -71,9 +71,9 @@ services:
       - webnet
 
   mlmodel:
-    build: ./app_mlmodel
+    build: ./mlmodel
     container_name: mlmodel
-    image: app_mlmodel:1.0.0
+    image: mlmodel:1.0.0
     restart: always
     ports:
       - 8666:8666

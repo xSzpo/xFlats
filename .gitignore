@@ -86,6 +86,8 @@ nify/conf/archive/*
 *.feather
 
 #key
+secrets/*
+!secrets/.gitkeep
 *.pem
 EC2/*.pem
 *.key
