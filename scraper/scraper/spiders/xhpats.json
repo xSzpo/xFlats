@@ -24,6 +24,7 @@
                   "building_material": "//section[@class='section-overview']//li[contains(text(),'Materiał budynku')]/strong/text()[normalize-space()]",
                   "year_of_building": "//section[@class='section-overview']//li[contains(text(),'Rok budowy')]/strong/text()[normalize-space()]",
                   "property_form": "//section[@class='section-overview']//li[contains(text(),'Forma własności')]/strong/text()[normalize-space()]",
+                  "offeror":"//*[@id='root']/article/div[1]/text()",
                   "additional_info":"//section[@class='section-overview' or @class='section-features']//div//text()"
             }
       },
@@ -34,19 +35,20 @@
             "url": "//a[contains(@href,'www.olx.pl/oferta')]/@href",
             "next_page_css": "span.fbold.next.abs.large a::attr(href)",
             "article_page_iter_xpaths": {
-                  "offer_type": "//table[contains(@class,'item')]//tr[contains(th/text(),'Oferta od')]//td//text()[normalize-space()]",
-                  "name": "//div[@class='offer-titlebox']/h1/text()",
-                  "location": "//a[@class='show-map-link']/strong/text()",
-                  "price": "//div[@class='price-label']/strong/text()",
-                  "price_m2": "//table[contains(@class,'item')]//tr[contains(th/text(),'Cena za m')]//td//text()[normalize-space()]",
-                  "flat_size": "//table[contains(@class,'item')]//tr[contains(th/text(),'Powierzchnia')]//td//text()[normalize-space()]",
-                  "rooms": "//table[contains(@class,'item')]//tr[contains(th/text(),'Liczba pokoi')]//td//text()[normalize-space()]",
-                  "market": "//table[contains(@class,'item')]//tr[contains(th/text(),'Rynek')]//td//text()[normalize-space()]",
-                  "building_type": "//table[contains(@class,'item')]//tr[contains(th/text(),'Rodzaj zabudowy')]//td//text()[normalize-space()]",
-                  "floor": "//table[contains(@class,'item')]//tr[contains(th/text(),'Poziom')]//td//text()[normalize-space()]",
+                  "tracking_id": "normalize-space(substring-after(///div[@class='offer-titlebox__details']//small/text()[normalize-space()],':'))",
+                  "price": "normalize-space(//div[@class='price-label']/strong/text())",
+                  "name": "normalize-space(//div[@class='offer-titlebox']/h1/text())",
+                  "location": "normalize-space(//a[@class='show-map-link']/strong/text())",
+                  "flat_size": "translate(//table[contains(@class,'item')]//tr[contains(th/text(),'Powierzchnia')]//td//text()[normalize-space()],'\t\n','')",
+                  "rooms": "translate(//table[contains(@class,'item')]//tr[contains(th/text(),'Liczba pokoi')]//td//text()[normalize-space()],'\t\n','')",
+                  "floor": "translate(//table[contains(@class,'item')]//tr[contains(th/text(),'Poziom')]//td//text()[normalize-space()],'\t\n','')",
+                  "price_m2": "translate(//table[contains(@class,'item')]//tr[contains(th/text(),'Cena za m')]//td//text()[normalize-space()],'\t\n','')",
+                  "market": "translate(//table[contains(@class,'item')]//tr[contains(th/text(),'Rynek')]//td//text()[normalize-space()],'\t\n','')",
+                  "building_type": "translate(//table[contains(@class,'item')]//tr[contains(th/text(),'Rodzaj zabudowy')]//td//text()[normalize-space()],'\t\n','')",
                   "description": "//div[contains(@class,'clr') and @id='textContent']//text()[normalize-space()]",
-                  "tracking_id": "//div[@class='offer-titlebox__details']//small/text()[normalize-space()]",
-                  "umeblowane": "//table[contains(@class,'item')]//tr[contains(th/text(),'Umeblowane')]//td//text()[normalize-space()]"
+                  "additional_info": "//*[@id='offerdescription']/div[3]/table//text()[normalize-space()]",
+                  "offeror": "translate(//table[contains(@class,'item')]//tr[contains(th/text(),'Oferta od')]//td//text()[normalize-space()],'\t\n','')",
+                  "date_created": "//*[@id='offerdescription']/div[2]//text()[contains(.,' 20')]"
             }
       },
       "gratka": {"start_urls": [

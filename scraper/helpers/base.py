@@ -217,6 +217,39 @@ class Scraper:
         return (Scraper.datetime2str(daty['dateCreated']),
                 Scraper.datetime2str(daty['dateModified']))
 
+    @staticmethod
+    def get_createdate_from_olx(data):
+
+        logger.info(data)
+        if re.search(r"[0123]?\d \S+ 20\d\d", data):
+            x = re.findall(r"[0123]?\d \S+ 20\d\d", data.lower())[0]
+            logger.info(x)
+            x = re.sub(r"stycz\S+", "jan", x)
+            x = re.sub(r"lut\S+", "feb", x)
+            x = re.sub(r"mar\S+", "mar", x)
+            x = re.sub(r"kwie\S+", "apr", x)
+            x = re.sub(r"maj\S+", "may", x)
+            x = re.sub(r"czerw\S+", "jun", x)
+            x = re.sub(r"lip\S+", "jul", x)
+            x = re.sub(r"sierp\S+", "aug", x)
+            x = re.sub(r"wrze\S+", "sep", x)
+            x = re.sub(r"pa.dziern\S+", "oct", x)
+            x = re.sub(r"listopa\S+", "nov", x)
+            x = re.sub(r"grud\S+", "dec", x)
+            logger.info(x)
+
+            try:
+                x = parse(x)
+                x = Scraper.datetime2str(x)
+                logger.info(x)
+                return x
+            except BaseException:
+                logger.error(x)
+                return None
+
+        else:
+            return None
+
 
 class Geodata:
 

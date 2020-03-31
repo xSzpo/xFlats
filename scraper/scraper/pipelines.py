@@ -61,56 +61,20 @@ class ProcessItem:
 
     def process_item_olx(self, item):
 
-        for key in ["price", "tracking_id", "name", "location", "flat_size",
-                    "description", "producer_name", "geo_coordinates", "name",
-                    "location"]:
-            if item[key] == "" or item[key] is None:
-                raise DropItem("Missing >>%s<< value" % key)
+        item['tracking_id'] = item['tracking_id'].strip()
+        item['price'] = helpers.Scraper.digits_from_str(item['price'], returntype=int)
+        item['_id'] = ("olx_"+str(item["tracking_id"]) + "_" + str(item['price'])).strip()
+        item['flat_size'] = helpers.Scraper.digits_from_str(item['flat_size'], returntype=int)
+        item['rooms'] = helpers.Scraper.digits_from_str(item['rooms'], returntype=int)
+        item['floor'] = helpers.Scraper.convert_floor(item['floor'])
+        item['price_m2'] = helpers.Scraper.digits_from_str(item['price_m2'], returntype=int)
+        item['number_of_floors'] = helpers.Scraper.digits_from_str(item['number_of_floors'], returntype=int)
+        item['year_of_building'] = helpers.Scraper.digits_from_str(item['year_of_building'], returntype=int)
 
-        if not any([i.isdigit() for i in item["price"]]):
-            raise DropItem("Missing >>%s<< value" % "price")
-
-        item['download_date'] = helpers.Scraper.current_datetime()
+        item['download_date'] = helpers.Scraper.datetime2str(helpers.Scraper.current_datetime())
         item['download_date_utc'] = time.time()
-        price_str = ''.join([i for i in re.sub("[ ]", "", item["price"])
-                            if i.isdigit()])
+        return item
 
-        item['tracking_id'] = int(np.float32(helpers.Scraper.digits_from_str(
-            item['tracking_id']))) if item['tracking_id'] is not None else None
-        item['_id'] = "olx_"+str(item["tracking_id"]) + "_" + price_str
-
-        # MODIFY DATA
-        item['flat_size'] = int(np.float32(helpers.Scraper.digits_from_str(
-            item['flat_size']))) if item['flat_size'] is not None else None
-        item['price'] = int(np.float32(helpers.Scraper.digits_from_str(
-            item['price']))) if item['price'] is not None else None
-        item['price_m2'] = helpers.Scraper.digits_from_str(item['price_m2']) \
-            if item['price_m2'] is not None else None
-        item['rooms'] = int(helpers.Scraper.digits_from_str(item['rooms'])) \
-            if item['rooms'] is not None else None
-        item['floor'] = item['floor'].strip() if item['floor'] is not None \
-            else None
-        item['floor_attic'] = 1 if item['floor'] == 'poddasze' else 0
-        item['floor_basement'] = 1 if item['floor'] == 'suterena' else 0
-        item['floor'] = helpers.Scraper.convert_floor(item['floor']) if \
-            isinstance(item['floor'], str) else None
-        item['name'] = item['name'].strip()
-        item['location'] = item['location'].strip()
-        item['market'] = item['market'].strip()
-        item['description'] = item['description'].strip()
-        item['building_type'] = item['building_type'].strip()
-        item['umeblowane'] = item['umeblowane'].strip()
-
-        selected_col = ['_id', 'name', 'location', 'flat_size', 'rooms',
-                        'floor', 'price', 'tracking_id', 'url', 'producer_name',
-                        'main_url', 'umeblowane', 'price_m2', 'market',
-                        'floor_attic', 'floor_basement', 'building_type',
-                        'description', 'url', 'main_url', 'tracking_id',
-                        'geo_coordinates', 'download_date', "download_date_utc"]
-        tmp = {}
-        for key in selected_col:
-            tmp[key] = item[key]
-        return tmp
 
     def process_item_gratka(self, item):
 

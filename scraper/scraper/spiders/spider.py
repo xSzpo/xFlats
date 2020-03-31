@@ -96,7 +96,7 @@ class Spider2(scrapy.Spider):
         next_page = response.css(self.next_page_css).get()
 
         if next_page is not None and self.pageCounter < \
-                self.settings['CRAWL_LIST_PAGES']  and self.pageCounter <= 300:
+                self.settings['CRAWL_LIST_PAGES']:
             if next_page is not None and self.pageCounter >= 1:
                 logger.info("OLX: next page, iter {}, url: {}".format(
                     self.pageCounter, next_page))
@@ -110,12 +110,30 @@ class Spider2(scrapy.Spider):
         for key in self.article_page_iter_xpaths:
             tmp[key] = response.xpath(self.article_page_iter_xpaths[key]).get()
 
+        tmp['additional_info'] = re.sub(r"\W+", " ", " ".join(response.xpath(
+            self.article_page_iter_xpaths['additional_info']).getall()).strip())
         tmp['description'] = "\n".join(response.xpath(
             self.article_page_iter_xpaths['description']).getall())
         tmp['geo_coordinates'] = helpers.Geodata.get_geodata_olx(response.body)
+        tmp['date_created'] = helpers.Scraper.\
+            get_createdate_from_olx(tmp['date_created'])
+        tmp['date_modified'] = None
         tmp['url'] = response.url
         tmp['producer_name'] = self.name
         tmp['main_url'] = self.start_urls[0]
+
+        tmp_reg = re.findall(r'\d+\W+pi.tr(?:ow|a)', tmp['description'].lower())
+        tmp['number_of_floors'] = tmp_reg[-1] if len(tmp_reg) > 0 else None
+
+        tmp_reg = re.findall(
+            r'(?:blok|dom|kamienic|budyn).+(?:1[89]\d\d|20\d\d)\b',
+            tmp['description'].lower())
+        tmp['year_of_building'] = re.findall(r'(?:1[89]\d\d|20\d\d)\b',
+                                             tmp_reg[0])[0] if len(tmp_reg) \
+            > 0 else None
+
+        #zlib.decompress(base64.b64decode(x))
+        tmp['body'] = base64.b64encode(zlib.compress(response.body)).decode()
 
         yield tmp
 
