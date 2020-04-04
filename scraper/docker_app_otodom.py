@@ -20,12 +20,19 @@ def scraper(event={}, context={}):
     _, _ = event, context
 
     # overwrite to save results in S3
+
     settings = get_project_settings()
-    settings['MONGO_ADDRESS'] = 'mongo'
     settings['REDIS_HOST'] = 'redis'
-    settings['KAFKA_HOST'] = 'kafka'
+    REDIS_PORT = 6379
+    REDIS_DB_INDEX = 0
+
+    LOCAL_FILE_DIR = "/app/data/"
+    LOCAL_FILE_NAME = "flatsdata"
+    ADDDATE2NAME = True
+
     settings['CRAWL_LIST_PAGES'] = 1
     settings['CONCURRENT_REQUESTS'] = 1
+
 
     settings['ITEM_PIPELINES'] = {
         'scraper.pipelines.ProcessItem': 100,

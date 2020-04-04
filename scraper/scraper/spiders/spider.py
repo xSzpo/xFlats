@@ -163,7 +163,7 @@ class Spider3(scrapy.Spider):
     list_date_modified = xpath_json['gratka']['main_page_date_modified']
     article_page_iter_xpaths = xpath_json['gratka']['article_page_iter_xpaths']
 
-    #allowed_domains = ["www.gratka.pl"]
+    allowed_domains = ["www.gratka.pl"]
 
     def parse(self, response):
 

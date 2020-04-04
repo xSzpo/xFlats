@@ -92,8 +92,10 @@ REDIS_DB_INDEX = 0
 BUCKET_NAME = 'mojewiadroxszpo'
 
 # local
-LOCAL_FILE_PATH = "/Users/xszpo/GoogleDrive/01_Projects/201907_xFlats/scraper/data.jsonline"
 
+LOCAL_FILE_DIR = "/Users/xszpo/GoogleDrive/01_Projects/201907_xFlats/scraper/"
+LOCAL_FILE_NAME = "data"
+ADDDATE2NAME = True
 
 # schema
 SCHEMA_FILE_NAME = 'schema.json'

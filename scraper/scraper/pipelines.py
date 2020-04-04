@@ -20,6 +20,7 @@ from google.cloud import storage
 from scrapy.utils.conf import closest_scrapy_cfg
 import os
 import helpers
+from datetime import date
 
 from jsonschema import validate, Draft3Validator, SchemaError, ValidationError
 import jsonschema
@@ -154,32 +155,40 @@ class ProcessItemGeocode:
 
 class OutputLocal:
 
-    def __init__(self, encoding, file_path, **kwargs):
+    def __init__(self, encoding, file_dir, file_name, file_adddate2name,
+                 **kwargs):
         self.encoding = encoding
-        self.file_path = file_path
+        self.file_dir = file_dir
+        self.file_name = file_name
+        self.file_adddate2name = file_adddate2name
         self.file = None
 
     @classmethod
     def from_crawler(cls, crawler):
         return cls(
             encoding=crawler.settings.get('FEED_EXPORT_ENCODING'),
-            file_path=crawler.settings.get('LOCAL_FILE_PATH')
+            file_dir=crawler.settings.get('LOCAL_FILE_DIR'),
+            file_name=crawler.settings.get('LOCAL_FILE_NAME'),
+            file_adddate2name=crawler.settings.get('ADDDATE2NAME')
         )
-
-    def open_spider(self, spider):
-        _ = spider
-        self.file = codecs.open(self.file_path, 'a', encoding=self.encoding)
-
-    def close_spider(self, spider):
-        _ = spider
-        self.file.close()
 
     def process_item(self, item, spider):
         _ = spider
-        _tmp = item.copy()
+
+        today = date.today().strftime("%Y%m%d")
+
+        if self.file_adddate2name:
+            file_path = os.path.join(
+                self.file_dir, self.file_name+"_"+today+".jsonline")
+        else:
+            file_path = os.path.join(self.file_dir, self.file_name+".jsonline")
+
+        file = codecs.open(file_path, 'a', encoding=self.encoding)
         logger.info("Local jsonline: save offer {}".format(item['_id']))
-        line = json.dumps(dict(_tmp), ensure_ascii=False) + "\n"
-        self.file.write(line)
+        line = json.dumps(dict(item), ensure_ascii=False) + "\n"
+        file.write(line)
+        file.close()
+
         return item
 
 
