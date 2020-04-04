@@ -19,6 +19,7 @@ app_web (Scraper):
     ☐ build new docker images with new pipeline
     ☐ build K8S pods with app_web service to run localy on Docker Desktop
     ☐ create tests
+    ☐ odwlasciciela.pl/mieszkania/sprzedaz/mazowieckie,warszawa.html
     ☐ PEP8
     ☐ prepare docs at Sphinx or similar
 

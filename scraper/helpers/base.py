@@ -185,11 +185,10 @@ class Scraper:
         else:
             return None
 
-
     @staticmethod
     def convert_floor(x):
         if x:
-            if str(x).isdigit():
+            if str(x).strip().isdigit():
                 return int(x)
             elif x.lower() == 'parter':
                 return int(0)
@@ -218,35 +217,48 @@ class Scraper:
                 Scraper.datetime2str(daty['dateModified']))
 
     @staticmethod
-    def get_createdate_from_olx(data):
+    def get_createdate_polish_months(data):
 
-        logger.info(data)
-        if re.search(r"[0123]?\d \S+ 20\d\d", data):
-            x = re.findall(r"[0123]?\d \S+ 20\d\d", data.lower())[0]
-            logger.info(x)
-            x = re.sub(r"stycz\S+", "jan", x)
-            x = re.sub(r"lut\S+", "feb", x)
-            x = re.sub(r"mar\S+", "mar", x)
-            x = re.sub(r"kwie\S+", "apr", x)
-            x = re.sub(r"maj\S+", "may", x)
-            x = re.sub(r"czerw\S+", "jun", x)
-            x = re.sub(r"lip\S+", "jul", x)
-            x = re.sub(r"sierp\S+", "aug", x)
-            x = re.sub(r"wrze\S+", "sep", x)
-            x = re.sub(r"pa.dziern\S+", "oct", x)
-            x = re.sub(r"listopa\S+", "nov", x)
-            x = re.sub(r"grud\S+", "dec", x)
-            logger.info(x)
+        logger.debug(data)
+        if data:
+            if re.search(r"[0123]?\d \S+ 20\d\d", data):
+                x = re.findall(r"[0123]?\d \S+ 20\d\d", data.lower())[0]
+                logger.debug(x)
+                x = re.sub(r"stycz\S+", "jan", x)
+                x = re.sub(r"lut\S+", "feb", x)
+                x = re.sub(r"mar\S+", "mar", x)
+                x = re.sub(r"kwie\S+", "apr", x)
+                x = re.sub(r"maj\S+", "may", x)
+                x = re.sub(r"czerw\S+", "jun", x)
+                x = re.sub(r"lip\S+", "jul", x)
+                x = re.sub(r"sierp\S+", "aug", x)
+                x = re.sub(r"wrze\S+", "sep", x)
+                x = re.sub(r"pa.dziern\S+", "oct", x)
+                x = re.sub(r"listopa\S+", "nov", x)
+                x = re.sub(r"grud\S+", "dec", x)
+                logger.debug(x)
 
-            try:
-                x = parse(x)
-                x = Scraper.datetime2str(x)
-                logger.info(x)
-                return x
-            except BaseException:
-                logger.error(x)
+                try:
+                    x = parse(x)
+                    x = Scraper.datetime2str(x)
+                    logger.debug(x)
+                    return x
+                except BaseException:
+                    logger.error(x)
+                    return None
+
+            else:
                 return None
+        else:
+            return None
 
+    @staticmethod
+    def searchregex(txt, pattern, group=0, func=None):
+        match = re.search(pattern, txt)
+        if match and func:
+            return func(match.group(group))
+        elif match:
+            return match.group(group)
         else:
             return None
 

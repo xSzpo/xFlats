@@ -75,160 +75,42 @@ class ProcessItem:
         item['download_date_utc'] = time.time()
         return item
 
-
     def process_item_gratka(self, item):
 
-        for key in ["price", "tracking_id", "name", "location", "flat_size",
-                    "description", "producer_name", "geo_coordinates", "name",
-                    "location"]:
-            if item[key] == "" or item[key] is None:
-                raise DropItem("Missing >>%s<< value" % key)
+        item['tracking_id'] = str(item['tracking_id'])
+        item['price'] = helpers.Scraper.digits_from_str(item['price'], returntype=int)
+        item['_id'] = ("gra_"+str(item["tracking_id"]) + "_" + str(item['price'])).strip()
+        item['flat_size'] = helpers.Scraper.digits_from_str(item['flat_size'], returntype=int)
+        item['rooms'] = helpers.Scraper.digits_from_str(item['rooms'], returntype=int)
+        item['floor'] = helpers.Scraper.convert_floor(item['floor'])
+        item['price_m2'] = helpers.Scraper.digits_from_str(item['price_m2'], returntype=int)
+        item['number_of_floors'] = helpers.Scraper.digits_from_str(item['number_of_floors'], returntype=int)
+        item['year_of_building'] = helpers.Scraper.digits_from_str(item['year_of_building'], returntype=int)
 
-        if not any([i.isdigit() for i in item["price"]]):
-            raise DropItem("Missing >>%s<< value" % "price")
+        item['date_modified'] = helpers.Scraper.datetime2str(item['date_modified'])
 
-        item['download_date'] = helpers.Scraper.current_datetime()
+        item['download_date'] = helpers.Scraper.datetime2str(helpers.Scraper.current_datetime())
         item['download_date_utc'] = time.time()
-        price_str = ''.join([i for i in re.sub("[ ]", "", item["price"])
-                             if i.isdigit()])
-
-        #item['tracking_id'] = item['tracking_id'].strip()
-        item['tracking_id'] = int(np.float32(helpers.Scraper.digits_from_str(
-            item['tracking_id']))) if item['tracking_id'] is not None else None
-
-        item['_id'] = "gra_"+str(item["tracking_id"]) + "_" + price_str
-
-        # MODIFY DATA
-        item['flat_size'] = int(np.float32(helpers.Scraper.digits_from_str(
-            item['flat_size']))) if item['flat_size'] is not None else None
-
-        item['price'] = int(np.float32(helpers.Scraper.digits_from_str(
-            item['price']))) if item['price'] is not None else None
-        item['price_m2'] = helpers.Scraper.digits_from_str(item['price_m2']) \
-            if item['price_m2'] is not None else None
-        item['rent_price'] = helpers.Scraper.digits_from_str(
-            item['rent_price']) if item['rent_price'] is not None else None
-        item['rooms'] = int(helpers.Scraper.digits_from_str(item['rooms'])) \
-            if item['rooms'] is not None else None
-        item['floor'] = item['floor'].strip() if item['floor'] is not None \
-            else None
-        item['floor_attic'] = 1 if item['floor'] == 'poddasze' else 0
-        item['floor_basement'] = 1 if item['floor'] == 'suterena' else 0
-        item['floor'] = helpers.Scraper.convert_floor(item['floor']) \
-            if isinstance(item['floor'], str) else None
-        item['number_of_floors'] = int(np.float32(item['number_of_floors'])) \
-            if isinstance(item['number_of_floors'], str) else None
-        item['name'] = item['name'].strip() if item['name'] is not None \
-            else None
-        item['location'] = item['location'].strip() if item['location'] \
-            is not None else None
-        item['description'] = item['description'].strip() \
-            if item['description'] is not None else None
-        item['building_type'] = item['building_type'].strip() \
-            if item['building_type'] is not None else None
-        item['year_of_building'] = int(np.float32(item['year_of_building'])) \
-            if isinstance(item['year_of_building'], str) else None
-        item['parking'] = item['parking'].strip() if item['parking'] \
-            is not None else None
-        item['kitchen'] = item['kitchen'].strip() if item['kitchen'] \
-            is not None else None
-        item['condition'] = item['condition'].strip() if item['condition'] \
-            is not None else None
-        item['condition_electric_wires'] = item['condition_electric_wires'] \
-            .strip() if item['condition_electric_wires'] is not None else None
-        item['windows'] = item['windows'].strip() if item['windows'] \
-            is not None else None
-        item['loudness'] = item['loudness'].strip() if item['loudness'] \
-            is not None else None
-        item['bathroom_equip'] = item['bathroom_equip'].strip() \
-            if item['bathroom_equip'] is not None else None
-        item['available_from'] = item['available_from'].strip() \
-            if item['available_from'] is not None else None
-        item['bathroom'] = item['bathroom'].strip() if item['bathroom'] \
-            is not None else None
-        item['additional_space'] = item['additional_space'].strip() \
-            if item['additional_space'] is not None else None
-        item['world_direction'] = item['world_direction'].strip() \
-            if item['world_direction'] is not None else None
-
-        selected_col = ['_id', 'name', 'location', 'flat_size', 'rooms',
-                        'floor', 'price', 'tracking_id', 'url', 'producer_name',
-                        'main_url', 'price_m2', 'floor_attic', 'floor_basement',
-                        'building_type', 'description', 'number_of_floors',
-                        'building_material', 'year_of_building', 'rent_price',
-                        'property_form', 'ref_number', 'comute',
-                        'health_beauty', 'education', 'other', 'url',
-                        'main_url', 'tracking_id', 'geo_coordinates',
-                        'ref_number', 'comute', 'health_beauty', 'education',
-                        'other', 'parking', 'kitchen', 'condition',
-                        'condition_electric_wires', 'windows', 'loudness',
-                        'bathroom_equip', 'available_from', 'bathroom',
-                        'additional_space', 'world_direction', 'download_date',
-                        "download_date_utc"]
-
-        tmp = {}
-        for key in selected_col:
-            tmp[key] = item[key]
-        return tmp
+        return item
 
     def process_item_morizon(self, item):
 
-        for key in ["price", "tracking_id", "name", "location", "flat_size",
-                    "description", "producer_name", "geo_coordinates", "name",
-                    "location"]:
-            if item[key] == "" or item[key] is None:
-                raise DropItem("Missing >>%s<< value" % key)
-
-        if not any([i.isdigit() for i in item["price"]]):
-            raise DropItem("Missing >>%s<< value" % "price")
-
-        item['download_date'] = helpers.Scraper.current_datetime()
-        item['download_date_utc'] = time.time()
-        price_str = ''.join([i for i in re.sub("[ ]", "", item["price"]) \
-                             if i.isdigit()])
         item['tracking_id'] = item['tracking_id'].strip()
-        item['_id'] = "mor_"+str(item["tracking_id"]) + "_" + price_str
-        item['_id'] = item['_id'].strip()
-        item['flat_size'] = int(np.float32(helpers.Scraper.digits_from_str(
-            item['flat_size']))) if item['flat_size'] is not None else None
-        item['flat_living_size'] = int(np.float32(
-            helpers.Scraper.digits_from_str(item['flat_living_size']))) \
-            if item['flat_living_size'] is not None else None
-        item['price'] = int(np.float32(helpers.Scraper.digits_from_str(
-            item['price']))) if item['price'] is not None else None
-        item['price_m2'] = helpers.Scraper.digits_from_str(item['price_m2']) \
-            if item['price_m2'] is not None else None
-        item['rooms'] = int(helpers.Scraper.digits_from_str(item['rooms'])) \
-            if item['rooms'] is not None else None
-        item['floor'] = re.findall("\d+", item['floor'])[0] \
-            if item['floor'] is not None and np.any(
-                [i.isdigit() for i in item['floor']]) else None
-        item['floor'] = helpers.Scraper.convert_floor(item['floor']) \
-            if isinstance(item['floor'], str) else None
-        item['number_of_floors'] = int(np.float32(item['number_of_floors'])) \
-            if isinstance(item['number_of_floors'], str) else None
-        item['year_of_building'] = int(np.float32(item['year_of_building'])) \
-            if isinstance(item['year_of_building'], str) else None
-        item['tracking_id'] = int(helpers.Scraper.digits_from_str(
-            item['tracking_id'])) if item['tracking_id'] is not None else None
+        item['price'] = helpers.Scraper.digits_from_str(item['price'], returntype=int)
+        item['_id'] = ("mor_"+str(item["tracking_id"]) + "_" + str(item['price'])).strip()
+        item['flat_size'] = helpers.Scraper.digits_from_str(item['flat_size'], returntype=int)
+        item['rooms'] = helpers.Scraper.digits_from_str(item['rooms'], returntype=int)
+        item['floor'] = helpers.Scraper.convert_floor(item['floor'])
+        item['price_m2'] = helpers.Scraper.digits_from_str(item['price_m2'], returntype=int)
+        item['number_of_floors'] = helpers.Scraper.convert_floor(item['number_of_floors'])
+        item['year_of_building'] = helpers.Scraper.digits_from_str(item['year_of_building'], returntype=int)
 
-        selected_col = ['_id', 'name', 'location', 'flat_size', 'rooms',
-                        'floor', 'price', 'tracking_id', 'url',
-                        'producer_name', 'main_url', 'price_m2', 'market',
-                        'number_of_floors', 'building_type',
-                        'building_material', 'year_of_building',
-                        'property_form', 'description', 'url', 'main_url',
-                        'tracking_id', 'geo_coordinates', 'heating_type',
-                        'other', "kitchen", "condition", "bathroom_number",
-                        "terrace", "terrece_size", "for_office",
-                        "offer_number", "flat_living_size", "flat_height",
-                        "offer_updated", "offer_added", 'download_date',
-                        "download_date_utc"]
+        item['date_created'] = helpers.Scraper.datetime2str(item['date_created'])
+        item['date_modified'] = helpers.Scraper.datetime2str(item['date_modified'])
 
-        tmp = {}
-        for key in selected_col:
-            tmp[key] = item[key]
-        return tmp
+        item['download_date'] = helpers.Scraper.datetime2str(helpers.Scraper.current_datetime())
+        item['download_date_utc'] = time.time()
+        return item
 
 
 class ProcessItemGeocode:
@@ -295,8 +177,6 @@ class OutputLocal:
     def process_item(self, item, spider):
         _ = spider
         _tmp = item.copy()
-        _tmp['download_date'] = helpers.Scraper.datetime2str(
-            item['download_date'])
         logger.info("Local jsonline: save offer {}".format(item['_id']))
         line = json.dumps(dict(_tmp), ensure_ascii=False) + "\n"
         self.file.write(line)
@@ -308,8 +188,6 @@ class OutputStdout:
     def process_item(self, item, spider):
         _ = spider
         _tmp = item.copy()
-        _tmp['download_date'] = helpers.Scraper.datetime2str(
-            item['download_date'])
         line = json.dumps(dict(_tmp), ensure_ascii=False)
         print(line)
         return item
@@ -392,8 +270,6 @@ class OutputS3:
     def process_item(self, item, spider):
         _ = spider
         _tmp = item.copy()
-        _tmp['download_date'] = helpers.Scraper.datetime2str(
-            item['download_date'])
         data = json.dumps(dict(_tmp), ensure_ascii=False)
         s3 = boto3.resource('s3')
         bucket = s3.Bucket(self.bucket_name)
@@ -424,8 +300,6 @@ class OutputGCP:
     def process_item(self, item, spider):
         _ = spider
         _tmp = item.copy()
-        _tmp['download_date'] = helpers.Scraper.datetime2str(
-            item['download_date'])
         data = json.dumps(dict(_tmp), ensure_ascii=False)
         s3 = boto3.resource('s3')
         bucket = s3.Bucket(self.bucket_name)
@@ -495,3 +369,27 @@ class ValidSchema(OutputFilter):
         with open(self.file_path, "r") as file:
             schema = json.load(file)
         return schema
+
+
+class OrderbySchema(OutputFilter):
+
+    def process_item(self, item, spider):
+
+        keys_schema = sorted(self.schema.keys(), key=lambda x: x.lower())
+        keys_item = sorted(item.keys(), key=lambda x: x.lower())
+
+        tmp = dict()
+
+        for key in keys_schema:
+            if key in keys_item:
+                tmp[key] = item[key]
+                _ = keys_item.pop(key)
+
+        for key in keys_item:
+            tmp[key] = item[key]
+
+        #_ = tmp.pop('additional_info')
+        #_ = tmp.pop('body')
+        #_ = tmp.pop('description')
+
+        return tmp

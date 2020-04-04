@@ -108,6 +108,7 @@ ITEM_PIPELINES = {
     'scraper.pipelines.OutputFilter': 110,
     'scraper.pipelines.ProcessItemGeocode': 115,
     'scraper.pipelines.ValidSchema': 116,
+    'scraper.pipelines.OrderbySchema': 117,
     'scraper.pipelines.OutputLocal': 201,
     #'scraper.pipelines.OutputRedis': 204,
     #'scraper.pipelines.OutputStdout': 402
