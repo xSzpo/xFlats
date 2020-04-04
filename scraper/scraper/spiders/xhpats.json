@@ -54,8 +54,8 @@
       "gratka": {"start_urls": [
                   "https://gratka.pl/nieruchomosci/mieszkania/warszawa/sprzedaz"
             ],
-            "url_xx":"//div[@class='teaser__infoBox']/h2[@class='teaser__title']/a/@href",
-            "url":"//a[contains(@href,'gratka.pl/nieruchomosci/') and (@class='teaser__anchor' or @class='recommendedOffers__imgBox')]//@href",
+            "url_old":"//a[contains(@href,'gratka.pl/nieruchomosci/') and (@class='teaser__anchor' or @class='recommendedOffers__imgBox')]//@href",
+            "url":"//div[@class='teaser__infoBox']/h2[@class='teaser__title']/a/@href",
             "main_page_date_modified":"//div[@class='teaser__infoBox']/ul[@class='teaser__info']/li[contains(text(),'Aktualizacja:')]",
             "next_page": "",
             "article_page_iter_xpaths": {
