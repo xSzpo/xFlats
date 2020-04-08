@@ -18,6 +18,4 @@ RUN pip install --trusted-host pypi.python.org -r requirements.txt
 ENV SCRAPER_START_DELAY_SEC 30
 
 # run
-CMD ["python", "-u","/app/docker_app_otodom.py"]
-
-
+ENTRYPOINT ["python", "-u","/app/docker_app_otodom.py"]

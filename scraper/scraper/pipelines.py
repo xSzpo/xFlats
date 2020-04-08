@@ -12,18 +12,18 @@ import json
 import re
 import codecs
 import time
-import numpy as np
-import boto3
 from scrapy.exceptions import DropItem
 import redis
 from google.cloud import storage
+from google.cloud import firestore
+import google.cloud.exceptions
 from scrapy.utils.conf import closest_scrapy_cfg
 import os
-import helpers
 from datetime import date
-
+from dateutil.parser import parse
 from jsonschema import validate, Draft3Validator, SchemaError, ValidationError
 import jsonschema
+import helpers
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +55,9 @@ class ProcessItem:
         item['price_m2'] = helpers.Scraper.digits_from_str(item['price_m2'], returntype=int)
         item['number_of_floors'] = helpers.Scraper.convert_floor(item['number_of_floors'])
         item['year_of_building'] = helpers.Scraper.digits_from_str(item['year_of_building'], returntype=int)
+
+        item['date_created'] = helpers.Scraper.datetime2str(item['date_created'])
+        item['date_modified'] = helpers.Scraper.datetime2str(item['date_modified'])
 
         item['download_date'] = helpers.Scraper.datetime2str(helpers.Scraper.current_datetime())
         item['download_date_utc'] = time.time()
@@ -265,63 +268,80 @@ class UpdateExistRedis(CheckIfExistRedis):
     pass
 
 
-class OutputS3:
+class OutputGCPFirestore():
 
-    def __init__(self, bucket_name):
-        self.bucket_name = bucket_name
+    def __init__(self, collection, id_field, drop_keys, str2date, secters_path):
+        self.collection = collection
+        self.id_field = id_field
+        self.drop_keys = drop_keys
+        self.str2date = str2date
+        self.secters_path = secters_path
+        self.db = firestore.Client.from_service_account_json(secters_path)
 
     @classmethod
     def from_crawler(cls, crawler):
         return cls(
-            bucket_name=crawler.settings.get('BUCKET_NAME')
+            collection=crawler.settings.get('COLLECTION'),
+            id_field=crawler.settings.get('ID_FIELD'),
+            drop_keys=crawler.settings.get('FIRESTORE_DROP_KEYS'),
+            str2date=crawler.settings.get('FIRESTORE_STR2DATE'),
+            secters_path=crawler.settings.get('SECRETS_PATH')
         )
 
     def process_item(self, item, spider):
+
         _ = spider
-        _tmp = item.copy()
-        data = json.dumps(dict(_tmp), ensure_ascii=False)
-        s3 = boto3.resource('s3')
-        bucket = s3.Bucket(self.bucket_name)
-        if len([i.key for i
-                in bucket.objects.filter(
-                    Prefix=_tmp['producer_name']+"/"+_tmp['_id'])]) > 0:
-            logger.info("S3: don't save offer {} to S3, already there".format(
-                _tmp['_id']))
-            item["found"] = True
-        else:
-            w = bucket.put_object(
-                Key=_tmp['producer_name']+"/"+_tmp['_id']+".bson", Body=data)
-            logger.info("S3: save offer {} to S3, {}".format(_tmp['_id'], w))
+
+        try:
+            tmp = item.copy()
+            for key in self.drop_keys:
+                _ = tmp.pop(key)
+
+            for key in self.str2date:
+                tmp[key] = parse(tmp[key]) if tmp[key] else None
+
+            self.db.collection(self.collection).document(item[self.id_field]).\
+                set(tmp)
+
+            logger.info("Firestore: added {} to collection {}".format(
+                item[self.id_field], self.collection))
+
+        except (google.cloud.exceptions.Forbidden,
+                google.cloud.exceptions.Unauthorized) as e:
+            logger.error("Could not connect to Firestore server: %s" % e)
+
+        except BaseException as e:
+            logger.error(item[self.id_field])
+            logger.error("BaseException at GCP Firestore (check existence)" +
+                         " something went wrong: %s" % e)
         return item
 
 
-class OutputGCP:
-
-    def __init__(self, bucket_name):
-        self.bucket_name = bucket_name
-
-    @classmethod
-    def from_crawler(cls, crawler):
-        return cls(
-            bucket_name=crawler.settings.get('BUCKET_NAME')
-        )
+class CheckIfExistGCPFirestore(OutputGCPFirestore):
 
     def process_item(self, item, spider):
+
         _ = spider
-        _tmp = item.copy()
-        data = json.dumps(dict(_tmp), ensure_ascii=False)
-        s3 = boto3.resource('s3')
-        bucket = s3.Bucket(self.bucket_name)
-        if len([i.key for i
-                in bucket.objects.filter(
-                    Prefix=_tmp['producer_name']+"/"+_tmp['_id'])]) > 0:
-            logger.info("S3: don't save offer {} to S3, already there".format(
-                _tmp['_id']))
-            item["found"] = True
-        else:
-            w = bucket.put_object(
-                Key=_tmp['producer_name']+"/"+_tmp['_id']+".bson", Body=data)
-            logger.info("S3: save offer {} to S3, {}".format(_tmp['_id'], w))
+
+        try:
+            if "found" not in item:
+                result = self.db.collection(self.collection).\
+                    document(item[self.id_field]).get([]).exists
+
+                if result:
+                    item['found'] = True
+                    logger.info("Firestore: found {} ".format(
+                        item[self.id_field]))
+
+        except (google.cloud.exceptions.Forbidden,
+                google.cloud.exceptions.Unauthorized) as e:
+            logger.error("Could not connect to server: %s" % e)
+
+        except BaseException as e:
+            logger.error(item[self.id_field])
+            logger.error("BaseException at GCP Firestore (check existence)" +
+                         " something went wrong: %s" % e)
+
         return item
 
 
@@ -358,10 +378,11 @@ class OutputFilter:
         )
 
     def process_item(self, item, spider):
+
         if "found" in item:
             raise DropItem("Found Drop {}!".format(item['_id']))
 
-        if not self.valid.is_valid(item):
+        elif not self.valid.is_valid(item):
             errors = sorted(self.valid.iter_errors(item),
                             key=lambda e: e.absolute_path)
             errors_plain = "\n".join([(e.relative_path[-1]+" -> "+e.message)

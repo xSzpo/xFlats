@@ -91,10 +91,16 @@ REDIS_DB_INDEX = 0
 # S3
 BUCKET_NAME = 'mojewiadroxszpo'
 
+# GCP Firestore
+COLLECTION = 'flats'
+SECRETS_PATH = "/Users/xszpo/GoogleDrive/01_Projects/201907_xFlats/secrets/flats-e6f6e1b4b129.json"
+FIRESTORE_DROP_KEYS = ['body']
+FIRESTORE_STR2DATE = ['download_date', 'date_created', 'date_modified']
+
 # local
 
-LOCAL_FILE_DIR = "/Users/xszpo/GoogleDrive/01_Projects/201907_xFlats/scraper/"
-LOCAL_FILE_NAME = "data"
+LOCAL_FILE_DIR = "/Users/xszpo/GoogleDrive/01_Projects/201907_xFlats/scraper/data/"
+LOCAL_FILE_NAME = "data_XX"
 ADDDATE2NAME = True
 
 # schema
@@ -107,11 +113,13 @@ SCHEMA_FILE_NAME = 'schema.json'
 ITEM_PIPELINES = {
     'scraper.pipelines.ProcessItem': 100,
     #'scraper.pipelines.CheckIfExistRedis': 104,
+    #'scraper.pipelines.CheckIfExistGCPFirestore': 108,
     'scraper.pipelines.OutputFilter': 110,
     'scraper.pipelines.ProcessItemGeocode': 115,
     'scraper.pipelines.ValidSchema': 116,
     'scraper.pipelines.OrderbySchema': 117,
     'scraper.pipelines.OutputLocal': 201,
+    #'scraper.pipelines.OutputGCPFirestore': 202,
     #'scraper.pipelines.OutputRedis': 204,
     #'scraper.pipelines.OutputStdout': 402
 }

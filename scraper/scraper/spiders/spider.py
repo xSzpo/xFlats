@@ -62,8 +62,15 @@ class Spider1(scrapy.Spider):
         tmp['description'] = "\n".join(response.xpath(
             self.article_page_iter_xpaths['description']).getall())
         tmp['geo_coordinates'] = Geodata.get_geodata_otodom(response.body)
-        tmp['date_created'], tmp['date_modified'] = Scraper.\
-            get_createdate_from_otodom(response.body)
+
+        regex = r'"dateCreated":"(20\d\d-[01]\d-[0-3]\d [0-3]\d:[0-5]\d:' + \
+                r'[0-5]\d)","dateModified":"(20\d\d-[01]\d-[0-3]\d ' + \
+                r'[0-3]\d:[0-5]\d:[0-5]\d)"'
+
+        tmp['date_created'] = Scraper.searchregex(response.body.decode(),
+                                                  regex, group=1, func=parse)
+        tmp['date_modified'] = Scraper.searchregex(response.body.decode(),
+                                                   regex, group=2, func=parse)
         tmp['url'] = response.url
         tmp['producer_name'] = self.name
         tmp['main_url'] = self.start_urls[0]
@@ -282,7 +289,8 @@ class Spider4(scrapy.Spider):
         tmp['floor'] = Scraper.searchregex(tmp['floor'], r"(\d+).+", group=1)
 
         tmp['date_created'] = Scraper.searchregex(
-            tmp['date_created'], r"\d\d-[01]\d-20\d\d", group=0, func=parse)
+            tmp['date_created'], r"\d\d-[01]\d-20\d\d", group=0)
+        tmp['date_created'] = parse(tmp['date_created'], dayfirst=True)
 
         tmp['date_modified'] = Scraper.\
             get_createdate_polish_months(tmp['date_modified'])

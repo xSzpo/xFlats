@@ -1,13 +1,9 @@
 import logging
 import os
-import boto3
 import datetime
 import requests
 import xmltodict
 import re
-import numpy as np
-import bson
-from bson.json_util import dumps, loads
 from functools import reduce
 import codecs
 import pytz
@@ -41,80 +37,6 @@ class PoliteLogFormatter(logformatter.LogFormatter):
             }
 
 
-class FilesS3:
-
-    @staticmethod
-    def list_files(settings):
-        bucket_name = settings['BUCKET_NAME']
-        prefix = settings['BUCKET_PREFIX_BSON']
-
-        logger.info("S3: Read list of files")
-        s3 = boto3.resource('s3')
-        bucket = s3.Bucket(bucket_name)
-        list_files_in_offers_list = [i.key[len(prefix):] for i in bucket.objects.filter(Prefix=prefix)]
-        logger.info("S3: Read list of files is done, its {} of files".format(len(list_files_in_offers_list)))
-        return list_files_in_offers_list
-
-    @staticmethod
-    def check_if_exists(offer_id, settings):
-        bucket_name = settings['BUCKET_NAME']
-        prefix = settings['BUCKET_PREFIX_BSON']
-        s3 = boto3.resource('s3')
-        bucket = s3.Bucket(bucket_name)
-        return True if len([i.key for i in bucket.objects.filter(Prefix=prefix+offer_id)]) > 0 else False
-
-    @staticmethod
-    def write_file(object_file, file_name, settings):
-        bucket_name = settings['BUCKET_NAME']
-        prefix = settings['BUCKET_PREFIX_BSON']
-        data_b_ = dumps(bson.BSON.encode(object_file))
-        s3 = boto3.resource('s3')
-        bucket = s3.Bucket(bucket_name)
-        w = bucket.put_object(Key=prefix+file_name+".bson", Body=data_b_)
-        logger.info("S3: save offer {} to S3, {}".format(file_name, w))
-        pass
-
-    @staticmethod
-    def read_file(file_name, settings):
-        bucket_name = settings['BUCKET_NAME']
-        prefix = settings['BUCKET_PREFIX_BSON']
-        client = boto3.client('s3')
-        file = client.get_object(Bucket=bucket_name, Key=prefix+file_name+".bson")['Body'].read()
-        return bson.BSON.decode(loads(file))
-
-
-class FilesLocal:
-
-    @staticmethod
-    def list_files(settings):
-        path = settings['LOCAL_DATA_DIR']
-        logger.info("Local: Read list of files")
-        list_ = os.listdir(path)
-        logger.info("Local: Read list of files is done, its {} of files".format(len(list_)))
-        return list_
-
-    @staticmethod
-    def check_if_exists(offer_id, settings):
-        path = settings['LOCAL_DATA_DIR']
-        return os.path.exists(os.path.join(path, offer_id))
-
-    @staticmethod
-    def write_file(object_file, file_name, settings):
-        path = settings['LOCAL_DATA_DIR']
-        data_b_ = dumps(bson.BSON.encode(object_file))
-        with codecs.open(os.path.join(path, file_name+".bson"), 'w', encoding='utf-8') as f:
-            f.write(data_b_)
-        logger.info("Local: save offer {} to local disk".format(file_name))
-        pass
-
-    @staticmethod
-    def read_file(file_name, settings):
-        path = settings['LOCAL_DATA_DIR']
-        with codecs.open(os.path.join(path, file_name+".bson"), 'rb', encoding='utf-8') as f:
-            x = bson.BSON.decode(loads(f.read()))
-        return x
-
-
 class Time:
 
     @staticmethod
@@ -146,7 +68,7 @@ class Scraper:
 
     @staticmethod
     def contains_digit(x):
-        return np.any([i.isdigit() for i in x])
+        return any([i.isdigit() for i in x])
 
     @staticmethod
     def dict_except(dictionary, except_keys=[], include_keys=None):
@@ -208,21 +130,14 @@ class Scraper:
             return None
 
     @staticmethod
-    def get_createdate_from_otodom(body):
-        daty = re.findall(r'"dateCreated":"20\d\d-[01]\d-[0-3]\d [0-3]\d:[0-5]\d:[0-5]\d","dateModified":"20\d\d-[01]\d-[0-3]\d [0-3]\d:[0-5]\d:[0-5]\d"', str(body))[-1]
-        daty = [i.replace(':', '|', 1).split("|") for i in daty.
-                replace('"', '').split(",")]
-        daty = {daty[0][0]: parse(daty[0][1]), daty[1][0]: parse(daty[1][1])}
-        return (Scraper.datetime2str(daty['dateCreated']),
-                Scraper.datetime2str(daty['dateModified']))
-
-    @staticmethod
     def get_createdate_polish_months(data):
 
         logger.debug(data)
         if data:
-            if re.search(r"[0123]?\d \S+ 20\d\d", data):
-                x = re.findall(r"[0123]?\d \S+ 20\d\d", data.lower())[0]
+            reg = r"[0123]?\d\W+\S+\W+20\d\d"
+            match = re.search(reg, data.lower())
+            if match:
+                x = match.group(0)
                 logger.debug(x)
                 x = re.sub(r"stycz\S+", "jan", x)
                 x = re.sub(r"lut\S+", "feb", x)
