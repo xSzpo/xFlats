@@ -83,14 +83,14 @@ services:
 
   scraper_otodom:
     build:
-      context: ./_app_web
+      context: ./app_web
       dockerfile: Dockerfile_otodom
     image: app_scraper_otodom:0.0.1
     container_name: scraper_otodom
     restart: always
     volumes:
-      - ./_app_web/scraper/settings.py:/app/scraper/settings.py
-      - ./_app_web/scraper/spiders/xhpats.json:/app/scraper/spiders/xhpats.json
+      - ./app_web/scraper/settings.py:/app/scraper/settings.py
+      - ./app_web/scraper/spiders/xhpats.json:/app/scraper/spiders/xhpats.json
     env_file: ./secrets/scraper.env
     environment:
       SCRAPER_START_DELAY_SEC: 180
@@ -105,14 +105,14 @@ services:
 
   scraper_olx:
     build:
-      context: ./_app_web
+      context: ./app_web
       dockerfile: Dockerfile_olx
     image: app_scraper_olx:0.0.1
     container_name: scraper_olx
     restart: always
     volumes:
-      - ./_app_web/scraper/settings.py:/app/scraper/settings.py
-      - ./_app_web/scraper/spiders/xhpats.json:/app/scraper/spiders/xhpats.json
+      - ./app_web/scraper/settings.py:/app/scraper/settings.py
+      - ./app_web/scraper/spiders/xhpats.json:/app/scraper/spiders/xhpats.json
     env_file: ./secrets/scraper.env
     environment:
       SCRAPER_START_DELAY_SEC: 180
@@ -127,14 +127,14 @@ services:
 
   scraper_gratka:
     build:
-      context: ./_app_web
+      context: ./app_web
       dockerfile: Dockerfile_gratka
     image: app_scraper_gratka:0.0.1
     container_name: scraper_gratka
     restart: always
     volumes:
-      - ./_app_web/scraper/settings.py:/app/scraper/settings.py
-      - ./_app_web/scraper/spiders/xhpats.json:/app/scraper/spiders/xhpats.json
+      - ./app_web/scraper/settings.py:/app/scraper/settings.py
+      - ./app_web/scraper/spiders/xhpats.json:/app/scraper/spiders/xhpats.json
     env_file: ./secrets/scraper.env
     environment:
       SCRAPER_START_DELAY_SEC: 180
@@ -149,14 +149,14 @@ services:
 
   scraper_morizon:
     build:
-      context: ./_app_web
+      context: ./app_web
       dockerfile: Dockerfile_morizon
     image: app_scraper_morizon:0.0.1
     container_name: scraper_morizon
     restart: always
     volumes:
-      - ./_app_web/scraper/settings.py:/app/scraper/settings.py
-      - ./_app_web/scraper/spiders/xhpats.json:/app/scraper/spiders/xhpats.json
+      - ./app_web/scraper/settings.py:/app/scraper/settings.py
+      - ./app_web/scraper/spiders/xhpats.json:/app/scraper/spiders/xhpats.json
     env_file: ./secrets/scraper.env
     environment:
       SCRAPER_START_DELAY_SEC: 180

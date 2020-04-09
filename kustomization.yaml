@@ -1,4 +1,0 @@
-secretGenerator:
-- name: gcp-firestore
-  files:
-  - ./secrets/gcpfirestore/gcpfirestore_key.json

@@ -3,7 +3,8 @@ import os
 
 # Scrapy settings for app_webscr_pipe_otodom project
 #
-# You can find more settings consulting the documentation:
+# For simplicity, this file contains only settings considered important or
+# commonly used. You can find more settings consulting the documentation:
 #
 #     https://docs.scrapy.org/en/latest/topics/settings.html
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
@@ -73,6 +74,7 @@ USER_AGENTS = [
 
 BOT_NAME = 'otodom'
 
+
 #################
 # OUTPUT SETTINGS
 #################
@@ -80,6 +82,12 @@ BOT_NAME = 'otodom'
 # SELECT WHERE TO CHECK
 SOURCE = 'LOCAL'
 
+# MONGO
+MONGO_ADDRESS = 'localhost'
+MONGO_PORT = 27017
+MONGO_DBNAME = 'OFFERS'
+MONGO_USERNAME = os.environ['MONGO_USERNAME']
+MONGO_PASSWORD = os.environ['MONGO_PASSWORD']
 ID_FIELD = '_id'
 DOWNLOAD_DATE = 'download_date'
 
@@ -91,20 +99,12 @@ REDIS_DB_INDEX = 0
 # S3
 BUCKET_NAME = 'mojewiadroxszpo'
 
-# GCP Firestore
-COLLECTION = 'flats'
-SECRETS_PATH = "/Users/xszpo/GoogleDrive/01_Projects/201907_xFlats/secrets/gcpfirestore_key.json"
-FIRESTORE_KEYS_MOVE_2_MORE = ['body']
-FIRESTORE_STR2DATE = ['download_date', 'date_created', 'date_modified']
-
 # local
+LOCAL_FILE_PATH = "/Users/xszpo/GoogleDrive/DataScience/Projects/201907_xFlat_AWS_Scrapy/app_web/data.jsonline"
 
-LOCAL_FILE_DIR = "/Users/xszpo/GoogleDrive/01_Projects/201907_xFlats/scraper/data/"
-LOCAL_FILE_NAME = "data_nok8s_"
-ADDDATE2NAME = True
-
-# schema
-SCHEMA_FILE_NAME = 'schema.json'
+# kafka
+KAFKA_HOST = "0.0.0.0"
+KAFKA_PORT = "9092"
 
 ##########
 # PIELINES
@@ -112,14 +112,15 @@ SCHEMA_FILE_NAME = 'schema.json'
 
 ITEM_PIPELINES = {
     'scraper.pipelines.ProcessItem': 100,
-    #'scraper.pipelines.CheckIfExistRedis': 110,
-    'scraper.pipelines.CheckIfExistGCPFirestore': 120,
-    'scraper.pipelines.OutputFilter': 130,
-    'scraper.pipelines.ProcessItemGeocode': 140,
-    'scraper.pipelines.ValidSchema': 150,
-    'scraper.pipelines.OrderbySchema': 160,
-    'scraper.pipelines.OutputLocal': 170,
-    'scraper.pipelines.OutputGCPFirestore': 180,
-    #'scraper.pipelines.OutputRedis': 190,
-    #'scraper.pipelines.OutputStdout': 200
+    'scraper.pipelines.CheckIfExistRedis': 104,
+    'scraper.pipelines.CheckIfExistMongo': 105,
+    'scraper.pipelines.UpdateExistRedis': 106,
+    'scraper.pipelines.OutputFilter': 110,
+    'scraper.pipelines.ProcessItemGeocode': 115,
+    #'scraper.pipelines.OutputLocal': 201,
+    'scraper.pipelines.OutputMongo': 202,
+    #'scraper.pipelines.OutputS3': 203,
+    'scraper.pipelines.OutputRedis': 204,
+    #'scraper.pipelines.OutputKafka': 401,
+    #'scraper.pipelines.OutputStdout': 402
 }

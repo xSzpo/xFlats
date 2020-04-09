@@ -1,0 +1,137 @@
+{
+      "otodom": {
+            "start_urls": [
+                  "https://www.otodom.pl/sprzedaz/mieszkanie/warszawa"
+            ],
+            "list_page_start_xpath": "//div[@class='col-md-content section-listing__row-content']//article[starts-with(@class,'offer-item ad')]",
+            "list_page_iter_xpaths": {
+                  "url": "@data-url"
+            },
+            "next_page_css": "li.pager-next a::attr(href)",
+            "article_page_iter_xpaths": {
+                  "offer_type": "//div[contains(@class,'css-7hnk9y')]/text()",
+                  "name": "//*[@id='root']/article/header/div[1]/div/div/h1/text()",
+                  "location": "//*[@id='root']/article/header/div[1]/div/div/div/a/text()",
+                  "price": "//*[@id='root']/article/header/div[2]/div[1]/div[2]/text()",
+                  "price_m2": "//*[@id='root']/article/header/div[2]/div[2]/div/text()",
+                  "flat_size": "//section[@class='section-overview']//li[contains(text(),'Powierzchnia')]/strong/text()[normalize-space()]",
+                  "rooms": "//section[@class='section-overview']//li[contains(text(),'Liczba pokoi')]/strong/text()[normalize-space()]",
+                  "market": "//section[@class='section-overview']//li[contains(text(),'Rynek')]/strong/text()[normalize-space()]",
+                  "building_type": "//section[@class='section-overview']//li[contains(text(),'Rodzaj zabudowy')]/strong/text()[normalize-space()]",
+                  "floor": "//section[@class='section-overview']//li[contains(text(),'Piętro')]/strong/text()[normalize-space()]",
+                  "number_of_floors": "//section[@class='section-overview']//li[contains(text(),'Liczba pięter')]/strong/text()[normalize-space()]",
+                  "building_material": "//section[@class='section-overview']//li[contains(text(),'Materiał budynku')]/strong/text()[normalize-space()]",
+                  "widows_type": "//section[@class='section-overview']//li[contains(text(),'Okna')]/strong/text()[normalize-space()]",
+                  "heating_type": "//section[@class='section-overview']//li[contains(text(),'Ogrzewanie')]/strong/text()[normalize-space()]",
+                  "year_of_building": "//section[@class='section-overview']//li[contains(text(),'Rok budowy')]/strong/text()[normalize-space()]",
+                  "finishing_stage":  "//section[@class='section-overview']//li[contains(text(),'Stan wykończenia')]/strong/text()[normalize-space()]",
+                  "rent_price": "//section[@class='section-overview']//li[contains(text(),'Czynsz')]/strong/text()[normalize-space()]",
+                  "property_form": "//section[@class='section-overview']//li[contains(text(),'Forma własności')]/strong/text()[normalize-space()]",
+                  "available_from": "//section[@class='section-overview']//li[contains(text(),'Dostępne od')]/strong/text()[normalize-space()]",
+                  "description": "//section[@class='section-description']//div//text()",
+                  "additional_info": "//section[@class='section-features']//div//text()",
+                  "tracking_id": "substring-after(//div[contains(text(),'Nr oferty w Otodom')]//text()[position()=1],':')",
+                  "agency_tracking_id": "substring-after(//div[contains(text(),'Nr oferty w Otodom')]//text()[position()=2],':')"
+            }
+      },
+      "olx": {
+            "start_urls": [
+                  "https://www.olx.pl/nieruchomosci/mieszkania/sprzedaz/warszawa"
+            ],
+            "url": "//a[contains(@href,'www.olx.pl/oferta')]/@href",
+            "next_page_css": "span.fbold.next.abs.large a::attr(href)",
+            "article_page_iter_xpaths": {
+                  "offer_type": "//table[contains(@class,'item')]//tr[contains(th/text(),'Oferta od')]//td//text()[normalize-space()]",
+                  "name": "//div[@class='offer-titlebox']/h1/text()",
+                  "location": "//a[@class='show-map-link']/strong/text()",
+                  "price": "//div[@class='price-label']/strong/text()",
+                  "price_m2": "//table[contains(@class,'item')]//tr[contains(th/text(),'Cena za m')]//td//text()[normalize-space()]",
+                  "flat_size": "//table[contains(@class,'item')]//tr[contains(th/text(),'Powierzchnia')]//td//text()[normalize-space()]",
+                  "rooms": "//table[contains(@class,'item')]//tr[contains(th/text(),'Liczba pokoi')]//td//text()[normalize-space()]",
+                  "market": "//table[contains(@class,'item')]//tr[contains(th/text(),'Rynek')]//td//text()[normalize-space()]",
+                  "building_type": "//table[contains(@class,'item')]//tr[contains(th/text(),'Rodzaj zabudowy')]//td//text()[normalize-space()]",
+                  "floor": "//table[contains(@class,'item')]//tr[contains(th/text(),'Poziom')]//td//text()[normalize-space()]",
+                  "description": "//div[contains(@class,'clr') and @id='textContent']//text()[normalize-space()]",
+                  "tracking_id": "//div[@class='offer-titlebox__details']//small/text()[normalize-space()]",
+                  "umeblowane": "//table[contains(@class,'item')]//tr[contains(th/text(),'Umeblowane')]//td//text()[normalize-space()]"
+            }
+      },
+      "gratka": {"start_urls": [
+                  "https://gratka.pl/nieruchomosci/mieszkania/warszawa/sprzedaz"
+            ],
+            "url":"//a[contains(@href,'gratka.pl/nieruchomosci/') and (@class='teaser__anchor' or @class='recommendedOffers__imgBox')]//@href",
+            "next_page": "",
+            "article_page_iter_xpaths": {
+                  "reference_id": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Numer referencyjny')]/b[@class='parameters__value']/text()[normalize-space()]",
+                  "name": "//h1[@class='sticker__title']/text()",
+                  "location": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Lokalizacja')]/b[@class='parameters__value']//a//text()",
+                  "price": "//span[@class='priceInfo__value']/text()",
+                  "price_m2": "//span[@class='priceInfo__additional']/text()",
+                  "flat_size": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Powierzchnia w m2')]/b[@class='parameters__value']/text()[normalize-space()]",
+                  "rooms": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Liczba pokoi')]/b[@class='parameters__value']/text()[normalize-space()]",
+                  "building_type": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Typ zabudowy')]/b[@class='parameters__value']/text()[normalize-space()]",
+                  "floor": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Piętro')]/b[@class='parameters__value']/text()[normalize-space()]",
+                  "number_of_floors": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Liczba pięter w budynku')]/b[@class='parameters__value']/text()[normalize-space()]",
+                  "building_material": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Materiał budynku')]/b[@class='parameters__value']/text()[normalize-space()]",
+                  "year_of_building": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Rok budowy')]/b[@class='parameters__value']/text()[normalize-space()]",
+                  "rent_price": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Opłaty (czynsz administracyjny, media)')]/b[@class='parameters__value']/text()[normalize-space()]",
+                  "property_form": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Forma własności')]/b[@class='parameters__value']/text()[normalize-space()]",
+                  "description": "//div[@class='description']//text()[normalize-space()]",
+                  "ref_number": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Numer referencyjny')]/b[@class='parameters__value']//text()[normalize-space()]",
+                  "comute": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Komunikacja')]/b[@class='parameters__value']//text()[normalize-space()]",
+                  "health_beauty": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Zdrowie i uroda')]/b[@class='parameters__value']//text()[normalize-space()]",
+                  "education": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Edukacja')]/b[@class='parameters__value']//text()[normalize-space()]",
+                  "other": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Pozostałe')]/b[@class='parameters__value']//text()[normalize-space()]",
+                  "parking": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Miejsce parkingowe')]/b[@class='parameters__value']//text()[normalize-space()]",
+                  "kitchen": "//ul[@class='parameters__rolled']//li[contains(span/text(),'Forma kuchni')]/b[@class='parameters__value']//text()[normalize-space()]",
+                  "condition": "//ul[@class='parameters__rolled']//li[span/text()='Stan']/b[@class='parameters__value']//text()[normalize-space()]",
+                  "condition_electric_wires": "//ul[@class='parameters__rolled']//li[span/text()='Stan instalacji']/b[@class='parameters__value']//text()[normalize-space()]",
+                  "condition_bathroom": "//ul[@class='parameters__rolled']//li[span/text()='Stan łazienki']/b[@class='parameters__value']//text()[normalize-space()]",
+                  "windows": "//ul[@class='parameters__rolled']//li[span/text()='Okna']/b[@class='parameters__value']//text()[normalize-space()]",
+                  "loudness": "//ul[@class='parameters__rolled']//li[span/text()='Głośność']/b[@class='parameters__value']//text()[normalize-space()]",
+                  "bathroom_equip": "//ul[@class='parameters__rolled']//li[span/text()='Forma / wyposażenie łazienki']/b[@class='parameters__value']//text()[normalize-space()]",
+                  "available_from": "//ul[@class='parameters__rolled']//li[span/text()='Dostępność od']/b[@class='parameters__value']//text()[normalize-space()]",
+                  "bathroom": "//ul[@class='parameters__rolled']//li[span/text()='Czy mieszkanie ma łazienkę?']/b[@class='parameters__value']//text()[normalize-space()]",
+                  "additional_space": "//ul[@class='parameters__rolled']//li[span/text()='Powierzchnia dodatkowa']/b[@class='parameters__value']//text()[normalize-space()]",
+                  "world_direction": "//ul[@class='parameters__rolled']//li[span/text()='Usytuowanie względem stron świata']/b[@class='parameters__value']//text()[normalize-space()]"
+            }
+      },
+      "morizon": {
+            "start_urls": [
+                  "https://www.morizon.pl/mieszkania/warszawa"
+            ],
+            "url": "//a[contains(@href,'www.morizon.pl/oferta/')]/@href",
+            "next_page": "//a[contains(@class,'mz-pagination-number__btn--next')]/@href",
+            "article_page_iter_xpaths": {
+                  "name": "//div[contains(@class,'summaryLocation')]//span/text()[normalize-space()]",
+                  "location": "//div[contains(@class,'summaryLocation')]//span/text()[normalize-space()]",
+                  "data_lat":"//div[@class='GoogleMap']/@data-lat",
+                  "data_lon": "//div[@class='GoogleMap']/@data-lng",
+                  "price": "//li[@class='paramIconPrice']/em",
+                  "price_m2": "//li[@class='paramIconPriceM2']/em",
+                  "flat_size": "//li[@class='paramIconLivingArea']/em",
+                  "rooms": "//li[@class='paramIconNumberOfRooms']/em",
+                  "market": "//section[@class='propertyDetails']//tr[contains(th/text(),'Rynek')]/td/text()[normalize-space()]",
+                  "building_type": "//section[@class='propertyDetails']//tr[contains(th/text(),'Typ budynku')]/td/text()[normalize-space()]",
+                  "property_form": "//section[@class='propertyDetails']//tr[contains(th/text(),'Forma własności')]/td/text()[normalize-space()]",
+                  "floor": "//section[@class='propertyDetails']//tr[contains(th/text(),'Piętro')]/td/text()[normalize-space()]",
+                  "number_of_floors": "//section[@class='propertyDetails']//tr[contains(th/text(),'Liczba pięter')]/td/text()[normalize-space()]",
+                  "building_material": "//section[@class='propertyDetails']//tr[contains(th/text(),'Materiał budowlany')]/td/text()[normalize-space()]",
+                  "heating_type": "//h3[contains(text(),'Ogrzewanie')]/following-sibling::p[1]//text()[normalize-space()]",
+                  "year_of_building": "//section[@class='propertyDetails']//tr[contains(th/text(),'Rok budowy')]/td/text()[normalize-space()]",
+                  "description": "//div[@class='description']//text()[normalize-space()]",
+                  "other": "//h3[contains(text(),'Udogodnienia')]/following-sibling::p[1]//text()[normalize-space()]",
+                  "kitchen": "//section[@class='propertyDetails']//tr[contains(th/text(),'Typ kuchni')]/td/text()[normalize-space()]",
+                  "condition": "//section[@class='propertyDetails']//tr[contains(th/text(),'Stan nieruchomości')]/td/text()[normalize-space()]",
+                  "bathroom_number": "//section[@class='propertyDetails']//tr[contains(th/text(),'Liczba łazienek')]/td/text()[normalize-space()]",
+                  "terrace": "//section[@class='propertyDetails']//tr[contains(th/text(),'Taras')]/td/text()[normalize-space()]",
+                  "terrece_size": "//section[@class='propertyDetails']//tr[contains(th/text(),'Powierzchnia tarasu')]/td/text()[normalize-space()]",
+                  "for_office": "//section[@class='propertyDetails']//tr[contains(th/text(),'Na biuro')]/td/text()[normalize-space()]",
+                  "offer_number": "//section[@class='propertyDetails']//tr[contains(th/text(),'Numer oferty')]/td/text()[normalize-space()]",
+                  "flat_living_size": "//section[@class='propertyDetails']//tr[contains(th/text(),'Powierzchnia użytkowa')]/td/text()[normalize-space()]",
+                  "flat_height": "//section[@class='propertyDetails']//tr[contains(th/text(),'Wysokość wnętrza')]/td/text()[normalize-space()]",
+                  "offer_updated": "//section[@class='propertyDetails']//tr[contains(th/text(),'Zaktualizowano')]/td/text()[normalize-space()]",
+                  "offer_added": "//section[@class='propertyDetails']//tr[contains(th/text(),'Opublikowano')]/td/text()[normalize-space()]"
+            }
+      }
+}
