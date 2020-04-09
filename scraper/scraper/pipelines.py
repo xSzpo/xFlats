@@ -283,7 +283,7 @@ class OutputGCPFirestore():
         return cls(
             collection=crawler.settings.get('COLLECTION'),
             id_field=crawler.settings.get('ID_FIELD'),
-            drop_keys=crawler.settings.get('FIRESTORE_DROP_KEYS'),
+            drop_keys=crawler.settings.get('FIRESTORE_KEYS_MOVE_2_MORE'),
             str2date=crawler.settings.get('FIRESTORE_STR2DATE'),
             secters_path=crawler.settings.get('SECRETS_PATH')
         )
@@ -294,14 +294,18 @@ class OutputGCPFirestore():
 
         try:
             tmp = item.copy()
+            more = dict()
             for key in self.drop_keys:
-                _ = tmp.pop(key)
+                more[key] = tmp.pop(key)
 
             for key in self.str2date:
                 tmp[key] = parse(tmp[key]) if tmp[key] else None
 
-            self.db.collection(self.collection).document(item[self.id_field]).\
-                set(tmp)
+            doc_lv1 = self.db.collection(self.collection).\
+                document(item[self.id_field])
+            doc_lv1.set(tmp)
+            doc_lv2 = doc_lv1.collection('more').document('data')
+            doc_lv2.set(more)
 
             logger.info("Firestore: added {} to collection {}".format(
                 item[self.id_field], self.collection))
