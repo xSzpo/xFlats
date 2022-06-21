@@ -4,7 +4,7 @@ lxml
 boto3==1.10.14
 requests
 pymongo==3.9.0
-numpy==1.15.4
+numpy==1.22.0
 botocore==1.13.14
 xmltodict
 Scrapy==1.8.0
