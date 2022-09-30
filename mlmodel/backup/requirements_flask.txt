@@ -2,7 +2,7 @@ pip
 unidecode
 pymongo ==3.9.0
 pandas==0.25.1
-joblib==0.13.2
+joblib==1.2.0
 numpy==1.17.4
 scikit-learn==0.20.0
 lightgbm==2.3.0
